@@ -1,0 +1,3 @@
+[submodule "src/VWO/thirdparty/g2o"]
+	path = src/VWO/thirdparty/g2o
+	url = https://github.com/RainerKuemmerle/g2o.git
