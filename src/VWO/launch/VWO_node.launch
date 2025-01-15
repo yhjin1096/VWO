@@ -1,0 +1,5 @@
+<launch>
+	<param name="config_file" value="$(find VWO)/config/flir_24392822.yaml"/>
+	<node name="VWO_node" pkg="VWO" type="VWO_node" output="screen">
+	</node>
+</launch>
