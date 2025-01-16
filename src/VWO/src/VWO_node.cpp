@@ -2,46 +2,20 @@
 
 VWO_node::VWO_node()
 {
-    getConfig();
+    // launch 파일에서 
+    ros::NodeHandle tmp_nh("~");
+    tmp_nh.getParam("config_file_path", config_file_path_);
+    tmp_nh.getParam("image_topic", image_topic_name_);
+    tmp_nh.getParam("odom_frame", odom_name_);
     
-    image_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, "/VPS/image_color", 1);
-    odom_sub = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, "odom", 1);
+    config_ = std::make_shared<Config>(config_file_path_);
+    system_ = std::make_shared<System>(config_);
+
+    image_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_name_, 1);
+    odom_sub = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, odom_name_, 1);
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub, *odom_sub);
     sync->registerCallback(boost::bind(&VWO_node::syncCallback, this, _1, _2));
-}
-
-void VWO_node::getConfig()
-{
-    std::string config_file;
-    if (!nh_.getParam("config_file", config_file))
-    {
-        ROS_ERROR("Failed to get 'config_file' from parameter server.");
-        return;
-    }
-
-    try
-    {
-        YAML::Node config = YAML::LoadFile(config_file);
-
-        // 카메라 매개변수 읽기
-        YAML::Node camera = config["Camera"];
-        double fx = camera["fx"].as<double>();
-        double fy = camera["fy"].as<double>();
-        double cx = camera["cx"].as<double>();
-        double cy = camera["cy"].as<double>();
-
-        ROS_INFO("Camera fx: %f, fy: %f, cx: %f, cy: %f", fx, fy, cx, cy);
-
-        // ORB 매개변수 읽기
-        YAML::Node feature = config["Feature"];
-        int num_levels = feature["num_levels"].as<int>();
-        ROS_INFO("ORB num_levels: %d", num_levels);
-    }
-    catch (const YAML::Exception &e)
-    {
-        ROS_ERROR("Failed to load or parse YAML file: %s", e.what());
-    }
 }
 
 void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg)
@@ -49,12 +23,24 @@ void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const n
     cv::Mat image = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image;
     cv::Mat gray_image;
     cv::cvtColor(image, gray_image, cv::COLOR_BGR2GRAY);
-
-    cv::imshow("grapy", gray_image);
+    
+    cv::imshow("gray", gray_image);
     char k = cv::waitKey(1);
     if(k == 'q')
     {
         ros::shutdown();
         exit(0);
+    }
+    else if (k == 's')
+    {
+        cv::Mat descriptor;
+        cv::Mat mask = cv::Mat();
+        std::vector<cv::KeyPoint> keypts;
+        
+        system_->feature_extractor_->extractFeatures(gray_image, mask, keypts, descriptor);
+        std::cout << keypts.size() << std::endl;
+        cv::imshow("desc", descriptor);
+
+        // extractor_left_->extract(img_gray, mask, keypts_, frm_obs.descriptors_);
     }
 }

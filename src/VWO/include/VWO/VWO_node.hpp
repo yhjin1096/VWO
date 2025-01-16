@@ -12,16 +12,22 @@
 
 #include <cv_bridge/cv_bridge.h>
 
-#include <yaml-cpp/yaml.h> 
-
 #include <opencv2/opencv.hpp>
 
+#include "VWO/system.hpp"
+#include "VWO/config.hpp"
 
 class VWO_node
 {
     public:
         VWO_node();
-        void getConfig();
+        std::shared_ptr<Config> config_;
+        std::shared_ptr<System> system_;
+
+        // ros param
+        std::string config_file_path_;
+        std::string image_topic_name_;
+        std::string odom_name_;
 
     private:
         ros::NodeHandle nh_;

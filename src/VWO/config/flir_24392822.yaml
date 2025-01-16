@@ -42,11 +42,11 @@ Preprocessing:
 #================#
 
 Feature:
-  name: "default ORB feature extraction setting"
+  name: "ORB"
   scale_factor: 1.2
   num_levels: 8
-  ini_fast_threshold: 20 #20
-  min_fast_threshold: 7 #7
+  ini_fast_threshold: 20
+  min_fast_threshold: 7
 
 #====================#
 # Mapping Parameters #

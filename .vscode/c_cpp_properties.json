@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/ros/noetic/**",
-                "/home/cona/yhj/VWO/**"
+                "/home/cona/yhj/VWO/src/VWO/include/**",
+                "/home/cona/yhj/VWO/src/VWO/include/VWO/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -52,9 +52,19 @@ include_directories(
   ${YAML_CPP_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME}_node src/main.cpp
+add_executable(${PROJECT_NAME}_node 
+              src/main.cpp
+              
               src/VWO_node.cpp
-              src/feature_extractor.cpp)
+              src/system.cpp
+
+              src/feature_extractor.cpp
+              src/orb_extractor.cpp
+              src/orb_params.cpp
+              src/orb_impl.cpp
+
+              src/config.cpp
+              )
 
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
