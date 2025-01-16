@@ -12,10 +12,9 @@ class System
 {
     public:
         System(const std::shared_ptr<Config>& cfg);
-
-    private:
         std::unique_ptr<FeatureExtractor> feature_extractor_;
 
+    private:
         std::shared_ptr<Config> config_;
 
         orb_params* orb_params_ = nullptr;

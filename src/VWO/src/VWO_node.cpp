@@ -31,16 +31,14 @@ void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const n
         ros::shutdown();
         exit(0);
     }
-    else if (k == 's')
+    // else if (k == 's')
     {
         cv::Mat descriptor;
         cv::Mat mask = cv::Mat();
         std::vector<cv::KeyPoint> keypts;
         
         system_->feature_extractor_->extractFeatures(gray_image, mask, keypts, descriptor);
-        std::cout << keypts.size() << std::endl;
-        cv::imshow("desc", descriptor);
-
-        // extractor_left_->extract(img_gray, mask, keypts_, frm_obs.descriptors_);
+        // cv::drawKeypoints(gray_image, keypts, gray_image, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+        // cv::imshow("desc", gray_image);
     }
 }
