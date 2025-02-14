@@ -1,4 +1,4 @@
-#include "VWO/orb_extractor.hpp"
+#include "VWO/feature/orb_extractor.hpp"
 
 
 void ORBExtractor::extractFeatures(const cv::_InputArray& in_image, const cv::_InputArray& in_image_mask,

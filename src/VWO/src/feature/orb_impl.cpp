@@ -1,5 +1,5 @@
-#include "VWO/orb_impl.hpp"
-#include "VWO/orb_point_pairs.hpp"
+#include "VWO/feature/orb_impl.hpp"
+#include "VWO/feature/orb_point_pairs.hpp"
 #include "util/trigonometric.hpp"
 
 orb_impl::orb_impl() {

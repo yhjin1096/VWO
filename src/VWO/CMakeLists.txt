@@ -58,10 +58,13 @@ add_executable(${PROJECT_NAME}_node
               src/VWO_node.cpp
               src/system.cpp
 
-              src/feature_extractor.cpp
-              src/orb_extractor.cpp
-              src/orb_params.cpp
-              src/orb_impl.cpp
+              src/camera/camera.cpp
+              src/camera/perspective.cpp
+
+              src/feature/feature_extractor.cpp
+              src/feature/orb_extractor.cpp
+              src/feature/orb_params.cpp
+              src/feature/orb_impl.cpp
 
               src/config.cpp
               )

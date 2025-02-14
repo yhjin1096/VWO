@@ -9,6 +9,8 @@
     ],
     "files.associations": {
         "ostream": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "iostream": "cpp",
+        "stdexcept": "cpp"
     }
 }

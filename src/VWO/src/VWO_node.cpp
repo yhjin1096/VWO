@@ -24,21 +24,23 @@ void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const n
     cv::Mat gray_image;
     cv::cvtColor(image, gray_image, cv::COLOR_BGR2GRAY);
     
-    cv::imshow("gray", gray_image);
+    {
+        cv::Mat descriptor;    
+        cv::Mat mask = cv::Mat();
+        std::vector<cv::KeyPoint> keypts;
+        
+        system_->feature_extractor_->extractFeatures(gray_image, mask, keypts, descriptor);
+        cv::Mat tmp_image;
+        cv::drawKeypoints(gray_image, keypts, tmp_image, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+        cv::resize(tmp_image, tmp_image, tmp_image.size()/2);
+        cv::imshow("tmp_image",tmp_image);
+        // cv::imshow("desc", descriptor);
+    }
+
     char k = cv::waitKey(1);
     if(k == 'q')
     {
         ros::shutdown();
         exit(0);
-    }
-    // else if (k == 's')
-    {
-        cv::Mat descriptor;
-        cv::Mat mask = cv::Mat();
-        std::vector<cv::KeyPoint> keypts;
-        
-        system_->feature_extractor_->extractFeatures(gray_image, mask, keypts, descriptor);
-        // cv::drawKeypoints(gray_image, keypts, gray_image, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
-        // cv::imshow("desc", gray_image);
     }
 }

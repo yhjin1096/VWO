@@ -8,9 +8,9 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 
-#include "VWO/feature_extractor.hpp"
-#include "VWO/orb_params.hpp"
-#include "VWO/orb_impl.hpp"
+#include "VWO/feature/feature_extractor.hpp"
+#include "VWO/feature/orb_params.hpp"
+#include "VWO/feature/orb_impl.hpp"
 #include "VWO/type.hpp"
 
 
