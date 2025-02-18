@@ -7,29 +7,8 @@
 #include <yaml-cpp/yaml.h>
 #include <cmath>
 
-enum class setup_type_t {
-    Monocular = 0,
-    Stereo = 1,
-    RGBD = 2
-};
-
 const std::array<std::string, 3> setup_type_to_string = {{"Monocular", "Stereo", "RGBD"}};
-
-enum class model_type_t {
-    Perspective = 0,
-    Fisheye = 1,
-    Equirectangular = 2,
-    RadialDivision = 3
-};
-
 const std::array<std::string, 4> model_type_to_string = {{"Perspective", "Fisheye", "Equirectangular", "RadialDivision"}};
-
-enum class color_order_t {
-    Gray = 0,
-    RGB = 1,
-    BGR = 2
-};
-
 const std::array<std::string, 3> color_order_to_string = {{"Gray", "RGB", "BGR"}};
 
 struct image_bounds {
@@ -50,6 +29,25 @@ struct image_bounds {
 class Camera
 {
     public:
+        enum class setup_type_t {
+            Monocular = 0,
+            Stereo = 1,
+            RGBD = 2
+        };
+
+        enum class model_type_t {
+            Perspective = 0,
+            Fisheye = 1,
+            Equirectangular = 2,
+            RadialDivision = 3
+        };
+
+        enum class color_order_t {
+            Gray = 0,
+            RGB = 1,
+            BGR = 2
+        };
+
         Camera(const std::string& name, const setup_type_t setup_type, const model_type_t model_type, const color_order_t color_order,
                const unsigned int cols, const unsigned int rows, const double fps,
                const double focal_x_baseline, const double true_baseline, const double depth_thr);

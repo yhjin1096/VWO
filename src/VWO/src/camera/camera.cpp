@@ -5,7 +5,7 @@
 
 // #include <spdlog/spdlog.h>
 
-Camera::Camera(const std::string& name, const setup_type_t setup_type, const model_type_t model_type, const color_order_t color_order,
+Camera::Camera(const std::string& name, const Camera::setup_type_t setup_type, const Camera::model_type_t  model_type, const Camera::color_order_t   color_order,
            const unsigned int cols, const unsigned int rows, const double fps,
            const double focal_x_baseline, const double true_baseline, const double depth_thr)
     : name_(name), setup_type_(setup_type), model_type_(model_type), color_order_(color_order),
@@ -17,7 +17,7 @@ Camera::~Camera() {
 
 }
 
-setup_type_t Camera::load_setup_type(const YAML::Node& yaml_node) {
+Camera::setup_type_t Camera::load_setup_type(const YAML::Node& yaml_node) {
     const auto setup_type_str = yaml_node["setup"].as<std::string>();
     if (setup_type_str == "monocular") {
         return setup_type_t::Monocular;
@@ -32,7 +32,7 @@ setup_type_t Camera::load_setup_type(const YAML::Node& yaml_node) {
     throw std::runtime_error("Invalid setup type: " + setup_type_str);
 }
 
-setup_type_t Camera::load_setup_type(const std::string& setup_type_str) {
+Camera::setup_type_t Camera::load_setup_type(const std::string& setup_type_str) {
     const auto itr = std::find(setup_type_to_string.begin(), setup_type_to_string.end(), setup_type_str);
     if (itr == setup_type_to_string.end()) {
         throw std::runtime_error("Invalid setup type: " + setup_type_str);
@@ -40,7 +40,7 @@ setup_type_t Camera::load_setup_type(const std::string& setup_type_str) {
     return static_cast<setup_type_t>(std::distance(setup_type_to_string.begin(), itr));
 }
 
-model_type_t Camera::load_model_type(const YAML::Node& yaml_node) {
+Camera::model_type_t  Camera::load_model_type(const YAML::Node& yaml_node) {
     const auto model_type_str = yaml_node["model"].as<std::string>();
     if (model_type_str == "perspective") {
         return model_type_t::Perspective;
@@ -57,7 +57,7 @@ model_type_t Camera::load_model_type(const YAML::Node& yaml_node) {
     throw std::runtime_error("Invalid camera model: " + model_type_str);
 }
 
-model_type_t Camera::load_model_type(const std::string& model_type_str) {
+Camera::model_type_t  Camera::load_model_type(const std::string& model_type_str) {
     const auto itr = std::find(model_type_to_string.begin(), model_type_to_string.end(), model_type_str);
     if (itr == model_type_to_string.end()) {
         throw std::runtime_error("Invalid camera model: " + model_type_str);
@@ -65,7 +65,7 @@ model_type_t Camera::load_model_type(const std::string& model_type_str) {
     return static_cast<model_type_t>(std::distance(model_type_to_string.begin(), itr));
 }
 
-color_order_t Camera::load_color_order(const YAML::Node& yaml_node) {
+Camera::color_order_t   Camera::load_color_order(const YAML::Node& yaml_node) {
     if (!yaml_node["color_order"]) {
         return color_order_t::Gray;
     }
@@ -84,7 +84,7 @@ color_order_t Camera::load_color_order(const YAML::Node& yaml_node) {
     throw std::runtime_error("Invalid color order: " + color_order_str);
 }
 
-color_order_t Camera::load_color_order(const std::string& color_order_str) {
+Camera::color_order_t   Camera::load_color_order(const std::string& color_order_str) {
     const auto itr = std::find(color_order_to_string.begin(), color_order_to_string.end(), color_order_str);
     if (itr == color_order_to_string.end()) {
         throw std::runtime_error("Invalid color order: " + color_order_str);

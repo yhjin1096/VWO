@@ -1,4 +1,4 @@
-#include <VWO/common.hpp>
+#include <VWO/main.hpp>
 
 int main(int argc, char** argv)
 {

@@ -31,6 +31,10 @@ class VWO_node
 
     private:
         ros::NodeHandle nh_;
+
+        ros::Subscriber sub;
+        void imageCallback(const sensor_msgs::ImageConstPtr& image_msg);
+
         message_filters::Subscriber<sensor_msgs::Image> *image_sub;
         message_filters::Subscriber<nav_msgs::Odometry> *odom_sub;
         void syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg);
