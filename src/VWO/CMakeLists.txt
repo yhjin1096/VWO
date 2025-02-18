@@ -60,22 +60,25 @@ add_executable(${PROJECT_NAME}_node
 
               src/config.cpp
 
-              src/util/converter.cpp
+              src/camera/camera.cpp
+              src/camera/perspective.cpp
 
               src/data/common.cpp
               src/data/frame.cpp
               src/data/keyframe.cpp
               src/data/landmark.cpp
 
-              src/camera/camera.cpp
-              src/camera/perspective.cpp
-
               src/feature/feature_extractor.cpp
               src/feature/orb_extractor.cpp
               src/feature/orb_params.cpp
               src/feature/orb_impl.cpp
 
+              src/match/area.cpp
+
               src/tracking/tracking_module.cpp
+
+              src/util/converter.cpp
+              src/util/angle.cpp
               )
 
 target_link_libraries(${PROJECT_NAME}_node

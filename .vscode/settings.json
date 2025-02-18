@@ -11,6 +11,8 @@
         "ostream": "cpp",
         "memory": "cpp",
         "iostream": "cpp",
-        "stdexcept": "cpp"
+        "stdexcept": "cpp",
+        "chrono": "cpp",
+        "atomic": "cpp"
     }
 }

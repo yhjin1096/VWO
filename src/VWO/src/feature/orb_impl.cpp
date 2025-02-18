@@ -1,6 +1,6 @@
 #include "VWO/feature/orb_impl.hpp"
 #include "VWO/feature/orb_point_pairs.hpp"
-#include "util/trigonometric.hpp"
+#include "VWO/util/trigonometric.hpp"
 
 orb_impl::orb_impl() {
     // Preparate  for computation of orientation

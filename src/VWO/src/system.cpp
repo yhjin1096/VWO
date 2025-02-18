@@ -24,6 +24,7 @@ System::System(const std::shared_ptr<Config>& cfg)
     }
     
     //tracker
+    tracker_ = new TrackingModule(cfg, camera_);
 }
 
 System::~System()
@@ -38,14 +39,24 @@ System::~System()
     feature_extractor_ = nullptr;
 }
 
-void System::trackFrame(const cv::Mat &image, const double timestamp)
+std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)
 {
     const auto start = std::chrono::system_clock::now();
-    data::Frame frm = createFrame(image, timestamp);
+    data::Frame curr_frm = createFrame(image, timestamp);
     const auto end = std::chrono::system_clock::now();
     double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     
-    // tracker_->track()
+    std::shared_ptr<Mat44_t> pose_wc;
+    if(exist_prev_)
+        pose_wc = tracker_->trackFrame(curr_frm, prev_frm_);
+    else
+    {
+        pose_wc = std::make_shared<Mat44_t>(Mat44_t::Identity());
+    }
+    prev_frm_ = curr_frm;
+    exist_prev_ = true;
+
+    return pose_wc;
 }
 
 data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
@@ -78,5 +89,5 @@ data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
     data::assign_keypoints_to_grid(camera_, frm_obs.undist_keypts_, frm_obs.keypt_indices_in_cells_,
                                    frm_obs.num_grid_cols_, frm_obs.num_grid_rows_);
     
-    return data::Frame(next_frame_id_++, timestamp, camera_, orb_params_, frm_obs);
+    return data::Frame(next_frame_id_++, timestamp, camera_, orb_params_, frm_obs, image);
 }

@@ -16,7 +16,7 @@
 #include "VWO/data/frame.hpp"
 #include "VWO/data/frame_observation.hpp"
 
-#include "util/yaml.hpp"
+#include "VWO/util/yaml.hpp"
 
 class System
 {
@@ -27,7 +27,7 @@ class System
         FeatureExtractor* feature_extractor_;
 
         TrackingModule* tracker_;
-        void trackFrame(const cv::Mat &image, const double timestamp);
+        std::shared_ptr<Mat44_t> trackFrame(const cv::Mat &image, const double timestamp);
 
         cv::Mat mask_;
 
@@ -43,6 +43,9 @@ class System
 
         std::atomic<unsigned int> next_frame_id_{0};
         data::Frame createFrame(const cv::Mat &image, const double timestamp);
+
+        bool exist_prev_ = false;
+        data::Frame prev_frm_;
 };
 
 #endif

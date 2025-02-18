@@ -1,5 +1,5 @@
-#ifndef STELLA_VSLAM_DATA_COMMON_H
-#define STELLA_VSLAM_DATA_COMMON_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #include "VWO/type.hpp"
 #include "VWO/camera/camera.hpp"

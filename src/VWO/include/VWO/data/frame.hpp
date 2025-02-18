@@ -3,13 +3,14 @@
 
 #include "VWO/type.hpp"
 
-#include "util/converter.hpp"
+#include "VWO/util/converter.hpp"
 
 #include "VWO/camera/camera.hpp"
 
 #include "VWO/feature/orb_extractor.hpp"
 #include "VWO/feature/orb_params.hpp"
 
+#include "VWO/data/common.hpp"
 #include "VWO/data/frame_observation.hpp"
 #include "VWO/data/landmark.hpp"
 #include "VWO/data/keyframe.hpp"
@@ -36,7 +37,7 @@ namespace data
              * @param markers_2d
              */
             Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
-                  orb_params* orb_params, const frame_observation frm_obs);
+                  orb_params* orb_params, const frame_observation frm_obs, cv::Mat image);
 
             /**
              * Set camera pose and refresh rotation and translation
@@ -169,7 +170,7 @@ namespace data
             //! reference keyframe for tracking
             std::shared_ptr<Keyframe> ref_keyfrm_ = nullptr;
 
-            Eigen::Affine3d map_to_ceil_;
+            cv::Mat image_;
 
         private:
             //! landmarks, whose nullptr indicates no-association
