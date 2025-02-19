@@ -35,7 +35,7 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
             cv::Mat vis;
             cv::hconcat(prev_img, curr_img, vis);
 
-            for(int i = 0; i < 100; i++)
+            for(int i = 0; i < init_matches_.size(); i++)
             {
                 int curr_point_idx = init_matches_[i];
                 if(curr_point_idx != -1)
@@ -56,7 +56,7 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
     }
 
     //pose
-    
+
 
     //dummy pose
     return std::make_shared<Mat44_t>(Mat44_t::Identity());
