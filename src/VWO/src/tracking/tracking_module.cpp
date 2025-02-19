@@ -1,9 +1,15 @@
 #include "VWO/tracking/tracking_module.hpp"
 
 TrackingModule::TrackingModule(const std::shared_ptr<Config>& cfg, Camera* camera)
-    : camera_(camera)
+    : camera_(camera), //vocab
+      num_ransac_iters_(cfg->yaml_node_["Tracking"]["num_ransac_iterations"].as<unsigned int>(100)),
+      min_num_valid_pts_(cfg->yaml_node_["Tracking"]["min_num_valid_pts"].as<unsigned int>(50)),
+      min_num_triangulated_pts_(cfg->yaml_node_["Tracking"]["min_num_triangulated_pts"].as<unsigned int>(50)),
+      parallax_deg_thr_(cfg->yaml_node_["Tracking"]["parallax_deg_threshold"].as<float>(1.0)),
+      reproj_err_thr_(cfg->yaml_node_["Tracking"]["reprojection_error_threshold"].as<float>(4.0)),
+      use_fixed_seed_(cfg->yaml_node_["Tracking"]["use_fixed_seed"].as<bool>(false))
 {
-
+    
 }
 
 TrackingModule::~TrackingModule()
@@ -21,6 +27,7 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
     }
     std::vector<int> init_matches_;
 
+    // init_matches_[i]가 j 일때 -> i는 prev_frm의 keypoint idx, j는 이에 매칭된 curr_frm의 keypoint idx
     match::area matcher(0.9, true);
     const auto num_matches = matcher.match_in_consistent_area(prev_frm, curr_frm, prev_matched_coords_, init_matches_, 100);
     
@@ -56,8 +63,19 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
     }
 
     //pose
+    data::Frame init_frm_= data::Frame(prev_frm);
+    initializer_ = std::make_unique<initialize::perspective>(
+                    init_frm_, num_ransac_iters_, min_num_triangulated_pts_, min_num_valid_pts_,
+                    parallax_deg_thr_, reproj_err_thr_, use_fixed_seed_);
+    
+    initializer_->initialize(init_frm_, init_matches_);
+    std::cout << initializer_->get_rotation_ref_to_cur() << std::endl;
+    std::cout << initializer_->get_translation_ref_to_cur().transpose() << std::endl;
 
+    std::shared_ptr<Mat44_t> cam_pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
+    cam_pose_cw->block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
+    cam_pose_cw->block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
 
     //dummy pose
-    return std::make_shared<Mat44_t>(Mat44_t::Identity());
+    return cam_pose_cw;
 }

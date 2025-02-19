@@ -73,12 +73,21 @@ add_executable(${PROJECT_NAME}_node
               src/feature/orb_params.cpp
               src/feature/orb_impl.cpp
 
+              src/initialize/base.cpp
+              src/initialize/perspective.cpp
+
               src/match/area.cpp
+
+              src/solve/common.cpp
+              src/solve/essential_solver.cpp
+              src/solve/homography_solver.cpp
+              src/solve/fundamental_solver.cpp
 
               src/tracking/tracking_module.cpp
 
               src/util/converter.cpp
               src/util/angle.cpp
+              src/util/random_array.cpp
               )
 
 target_link_libraries(${PROJECT_NAME}_node
