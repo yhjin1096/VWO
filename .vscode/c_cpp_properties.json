@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/opt/ros/noetic/**",
                 "/home/cona/yhj/VWO/src/VWO/include/**",
-                "/home/cona/yhj/VWO/src/VWO/include/VWO/**"
+                "/home/cona/yhj/VWO/src/VWO/include/VWO/**",
+                "/usr/local/include/opencv4/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

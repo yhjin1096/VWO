@@ -31,6 +31,9 @@ class System
 
         cv::Mat mask_;
 
+        std::shared_ptr<Mat44_t> trackTwoFrame(const cv::Mat& prev_image, const cv::Mat& curr_image,
+                            const double prev_timestamp, const double curr_timestamp);
+
     private:
         std::shared_ptr<Config> config_;
 

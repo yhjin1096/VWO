@@ -1,0 +1,75 @@
+# KITTI monocular model for seq.04-12
+
+#System:
+#  num_grid_cols: 40
+#  num_grid_rows: 13
+
+#==============#
+# Camera Model #
+#==============#
+
+Camera:
+  name: "flir"
+  setup: "monocular"
+  model: "perspective"
+
+  fx: 1841.79034
+  fy: 1842.24282
+  cx: 972.91529
+  cy: 716.91099
+
+  k1: -9.796234e-02
+  k2: 2.092675e-01
+  p1: -2.348868e-04
+  p2: -5.425523e-04
+  k3: -1.205778e-02
+
+  fps: 60.0
+  cols: 1936
+  rows: 1464
+
+  color_order: "BGR"
+
+#=====================#
+# Tracking Parameters #
+#=====================#
+
+Preprocessing:
+  min_size: 800
+
+#================#
+# ORB Parameters #
+#================#
+
+Feature:
+  name: "ORB"
+  scale_factor: 1.2
+  num_levels: 8
+  ini_fast_threshold: 20 #20
+  min_fast_threshold: 7 #7
+
+#====================#
+# Mapping Parameters #
+#====================#
+
+Mapping:
+  baseline_dist_thr_ratio: 0.02
+  redundant_obs_ratio_thr: 0.9
+  num_covisibilities_for_landmark_generation: 20
+  num_covisibilities_for_landmark_fusion: 20
+
+#===========================#
+# PangolinViewer Parameters #
+#===========================#
+
+PangolinViewer:
+  keyframe_size: 0.06
+  keyframe_line_width: 1
+  graph_line_width: 1
+  point_size: 2
+  camera_size: 0.07
+  camera_line_width: 2
+  viewpoint_x: 0
+  viewpoint_y: -20
+  viewpoint_z: -0.1
+  viewpoint_f: 2800

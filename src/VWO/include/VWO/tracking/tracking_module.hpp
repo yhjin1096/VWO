@@ -4,10 +4,14 @@
 #include <iostream>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 #include "VWO/config.hpp"
 
 #include "VWO/camera/camera.hpp"
+#include "VWO/camera/perspective.hpp"
 
 #include "VWO/data/frame.hpp"
 
@@ -40,6 +44,7 @@ class TrackingModule
         const float reproj_err_thr_;
         //! Use fixed random seed for RANSAC if true
         const bool use_fixed_seed_;
+        data::Frame init_frm_;
 };
 
 #endif

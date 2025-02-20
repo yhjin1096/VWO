@@ -2,8 +2,11 @@
 #define VWO_NODE_HPP
 
 #include <ros/ros.h>
+
 #include <sensor_msgs/Image.h>
 #include <nav_msgs/Odometry.h>
+#include <tf/transform_broadcaster.h>
+
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
@@ -38,6 +41,12 @@ class VWO_node
         message_filters::Subscriber<sensor_msgs::Image> *image_sub;
         message_filters::Subscriber<nav_msgs::Odometry> *odom_sub;
         void syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg);
+
+        cv::Mat prev_image, curr_image;
+        double prev_timestamp, curr_timestamp;
+
+        tf::TransformBroadcaster br;
+        void publishPose(const Mat44_t& pose, const ros::Time& stamp);
 };
 
 #endif

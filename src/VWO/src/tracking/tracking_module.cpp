@@ -29,10 +29,13 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
 
     // init_matches_[i]가 j 일때 -> i는 prev_frm의 keypoint idx, j는 이에 매칭된 curr_frm의 keypoint idx
     match::area matcher(0.9, true);
-    const auto num_matches = matcher.match_in_consistent_area(prev_frm, curr_frm, prev_matched_coords_, init_matches_, 100);
-    
+    const auto num_matches = matcher.match_in_consistent_area(prev_frm, curr_frm, prev_matched_coords_, init_matches_, 300);
+    std::cout << num_matches << std::endl;
+    if(num_matches < 50)
+        return std::make_shared<Mat44_t>(Mat44_t::Identity());
+        
     // visualize matches
-    if(0)
+    if(1)
     {
         cv::Mat prev_img = prev_frm.image_.clone();
         cv::Mat curr_img = curr_frm.image_.clone();
@@ -62,20 +65,63 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
         }
     }
 
-    //pose
-    data::Frame init_frm_= data::Frame(prev_frm);
-    initializer_ = std::make_unique<initialize::perspective>(
-                    init_frm_, num_ransac_iters_, min_num_triangulated_pts_, min_num_valid_pts_,
-                    parallax_deg_thr_, reproj_err_thr_, use_fixed_seed_);
+    // //pose
+    // bool succeeded;
+    // init_frm_= data::Frame(prev_frm);
+    // initializer_ = std::make_unique<initialize::perspective>(
+    //                 init_frm_, num_ransac_iters_, min_num_triangulated_pts_, min_num_valid_pts_,
+    //                 parallax_deg_thr_, reproj_err_thr_, use_fixed_seed_);
     
-    initializer_->initialize(init_frm_, init_matches_);
-    std::cout << initializer_->get_rotation_ref_to_cur() << std::endl;
-    std::cout << initializer_->get_translation_ref_to_cur().transpose() << std::endl;
+    // succeeded = initializer_->initialize(init_frm_, init_matches_);
+    // // std::cout << initializer_->get_rotation_ref_to_cur() << std::endl;
+    // // std::cout << initializer_->get_translation_ref_to_cur().transpose() << std::endl;
 
-    std::shared_ptr<Mat44_t> cam_pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
-    cam_pose_cw->block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
-    cam_pose_cw->block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
+    // std::shared_ptr<Mat44_t> cam_pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
+    // // cam_pose_cw->block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
+    // // cam_pose_cw->block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
 
-    //dummy pose
+    // opencv pose
+    std::shared_ptr<Mat44_t> cam_pose_cw;
+    if(1)
+    {
+        cv::Mat mask;
+        std::vector<cv::Point2f> prev_points, curr_points;
+        for(int i = 0; i < init_matches_.size(); i++)
+        {
+            if(init_matches_[i] >= 0)
+            {
+                prev_points.push_back(prev_frm.frm_obs_.undist_keypts_[i].pt);
+                curr_points.push_back(curr_frm.frm_obs_.undist_keypts_[init_matches_[i]].pt);
+            }
+        }
+        cv::BFMatcher bf_matcher(cv::NORM_HAMMING, true);
+        std::vector<cv::DMatch> matches;
+        bf_matcher.match(prev_frm.frm_obs_.descriptors_, curr_frm.frm_obs_.descriptors_, matches);
+        std::sort(matches.begin(), matches.end(), [](const cv::DMatch& m1, const cv::DMatch& m2) {
+            return m1.distance < m2.distance;
+        });
+        int numGoodMatches = std::min(50, (int)matches.size());
+        std::vector<cv::DMatch> goodMatches(matches.begin(), matches.begin() + numGoodMatches);
+        for (size_t i = 0; i < goodMatches.size(); i++) {
+            prev_points.push_back(prev_frm.frm_obs_.undist_keypts_[goodMatches[i].queryIdx].pt);
+            curr_points.push_back(curr_frm.frm_obs_.undist_keypts_[goodMatches[i].trainIdx].pt);
+        }
+
+        cv::Mat R, t;
+        auto c = static_cast<Perspective*>(prev_frm.camera_);
+        cv::Mat E = cv::findEssentialMat(prev_points, curr_points,
+                                        c->cv_cam_matrix_, cv::RANSAC, 0.999, 1.0, mask);
+        int inliers = cv::recoverPose(E, prev_points, curr_points, c->cv_cam_matrix_, R, t, mask);
+
+
+        Eigen::Matrix3d R_eigen = Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>>(R.ptr<double>(), 3, 3);
+        Eigen::Vector3d t_eigen = Eigen::Map<Eigen::Vector3d>(t.ptr<double>(), 3);
+        Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+        T.block<3,3>(0,0) = R_eigen;
+        T.block<3,1>(0,3) = t_eigen;
+
+        cam_pose_cw = std::make_shared<Mat44_t>(T);
+    }
+    
     return cam_pose_cw;
 }

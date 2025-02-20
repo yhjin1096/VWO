@@ -46,17 +46,27 @@ std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double t
     const auto end = std::chrono::system_clock::now();
     double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     
-    std::shared_ptr<Mat44_t> pose_wc;
+    std::shared_ptr<Mat44_t> pose_cw;
     if(exist_prev_)
-        pose_wc = tracker_->trackFrame(curr_frm, prev_frm_);
+        pose_cw = tracker_->trackFrame(curr_frm, prev_frm_);
     else
     {
-        pose_wc = std::make_shared<Mat44_t>(Mat44_t::Identity());
+        pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
     }
     prev_frm_ = curr_frm;
     exist_prev_ = true;
 
-    return pose_wc;
+    return pose_cw;
+}
+
+std::shared_ptr<Mat44_t> System::trackTwoFrame(const cv::Mat& prev_image, const cv::Mat& curr_image,
+                            const double prev_timestamp, const double curr_timestamp)
+{
+    data::Frame prev_frm = createFrame(prev_image, prev_timestamp);
+    data::Frame curr_frm = createFrame(curr_image, curr_timestamp);
+    std::shared_ptr<Mat44_t> tmp_pose = tracker_->trackFrame(curr_frm, prev_frm);
+
+    return tmp_pose;
 }
 
 data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
