@@ -64,9 +64,12 @@ std::shared_ptr<Mat44_t> System::trackTwoFrame(const cv::Mat& prev_image, const 
 {
     data::Frame prev_frm = createFrame(prev_image, prev_timestamp);
     data::Frame curr_frm = createFrame(curr_image, curr_timestamp);
-    std::shared_ptr<Mat44_t> tmp_pose = tracker_->trackFrame(curr_frm, prev_frm);
+    std::shared_ptr<Mat44_t> pose_cp = tracker_->trackFrame(curr_frm, prev_frm);
 
-    return tmp_pose;
+    // prev_frm.set_pose_cw(Mat44_t::Identity());
+    // curr_frm.set_pose_cw(*pose_cp * prev_frm.get_pose_cw());
+
+    return pose_cp;
 }
 
 data::Frame System::createFrame(const cv::Mat &image, const double timestamp)

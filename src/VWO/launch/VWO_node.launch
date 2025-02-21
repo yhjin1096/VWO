@@ -1,7 +1,10 @@
 <launch>
 	<node name="VWO_node" pkg="VWO" type="VWO_node" output="screen">
-		<param name="config_file_path" type="string" value="$(find VWO)/config/4_37mm.yaml"/>
+		<param name="config_file_path" type="string" value="$(find VWO)/config/5_37mm.yaml"/>
 		<param name="image_topic" type="string" value="/VPS/image_color"/>
-		<param name="odom_frame" type="string" value="/odom"/>
+
+		<param name="odom_frame" type="string" value="odom"/>
+		<param name="base_link_frame" type="string" value="base_link"/>
+		<param name="camera_link_frame" type="string" value="camera_topRGB_link"/>
 	</node>
 </launch>

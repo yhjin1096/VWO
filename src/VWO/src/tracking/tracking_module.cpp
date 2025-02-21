@@ -30,7 +30,7 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
     // init_matches_[i]가 j 일때 -> i는 prev_frm의 keypoint idx, j는 이에 매칭된 curr_frm의 keypoint idx
     match::area matcher(0.9, true);
     const auto num_matches = matcher.match_in_consistent_area(prev_frm, curr_frm, prev_matched_coords_, init_matches_, 300);
-    std::cout << num_matches << std::endl;
+    std::cout << "num_matches: " << num_matches << std::endl;
     if(num_matches < 50)
         return std::make_shared<Mat44_t>(Mat44_t::Identity());
         
@@ -76,16 +76,17 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
     // // std::cout << initializer_->get_rotation_ref_to_cur() << std::endl;
     // // std::cout << initializer_->get_translation_ref_to_cur().transpose() << std::endl;
 
-    // std::shared_ptr<Mat44_t> cam_pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
-    // // cam_pose_cw->block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
-    // // cam_pose_cw->block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
+    // std::shared_ptr<Mat44_t> cam_pose_cp = std::make_shared<Mat44_t>(Mat44_t::Identity());
+    // // cam_pose_cp->block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
+    // // cam_pose_cp->block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
 
     // opencv pose
-    std::shared_ptr<Mat44_t> cam_pose_cw;
+    std::shared_ptr<Mat44_t> cam_pose_cp; //curr -> prev
     if(1)
     {
         cv::Mat mask;
         std::vector<cv::Point2f> prev_points, curr_points;
+
         for(int i = 0; i < init_matches_.size(); i++)
         {
             if(init_matches_[i] >= 0)
@@ -94,18 +95,20 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
                 curr_points.push_back(curr_frm.frm_obs_.undist_keypts_[init_matches_[i]].pt);
             }
         }
-        cv::BFMatcher bf_matcher(cv::NORM_HAMMING, true);
-        std::vector<cv::DMatch> matches;
-        bf_matcher.match(prev_frm.frm_obs_.descriptors_, curr_frm.frm_obs_.descriptors_, matches);
-        std::sort(matches.begin(), matches.end(), [](const cv::DMatch& m1, const cv::DMatch& m2) {
-            return m1.distance < m2.distance;
-        });
-        int numGoodMatches = std::min(50, (int)matches.size());
-        std::vector<cv::DMatch> goodMatches(matches.begin(), matches.begin() + numGoodMatches);
-        for (size_t i = 0; i < goodMatches.size(); i++) {
-            prev_points.push_back(prev_frm.frm_obs_.undist_keypts_[goodMatches[i].queryIdx].pt);
-            curr_points.push_back(curr_frm.frm_obs_.undist_keypts_[goodMatches[i].trainIdx].pt);
-        }
+
+        // cv::BFMatcher bf_matcher(cv::NORM_HAMMING, true);
+        // std::vector<cv::DMatch> matches;
+        
+        // bf_matcher.match(prev_frm.frm_obs_.descriptors_, curr_frm.frm_obs_.descriptors_, matches);
+        // std::sort(matches.begin(), matches.end(), [](const cv::DMatch& m1, const cv::DMatch& m2) {
+        //     return m1.distance < m2.distance;
+        // });
+        // int numGoodMatches = std::min(100, (int)matches.size());
+        // std::vector<cv::DMatch> goodMatches(matches.begin(), matches.begin() + numGoodMatches);
+        // for (size_t i = 0; i < goodMatches.size(); i++) {
+        //     prev_points.push_back(prev_frm.frm_obs_.undist_keypts_[goodMatches[i].queryIdx].pt);
+        //     curr_points.push_back(curr_frm.frm_obs_.undist_keypts_[goodMatches[i].trainIdx].pt);
+        // }
 
         cv::Mat R, t;
         auto c = static_cast<Perspective*>(prev_frm.camera_);
@@ -120,8 +123,8 @@ std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::
         T.block<3,3>(0,0) = R_eigen;
         T.block<3,1>(0,3) = t_eigen;
 
-        cam_pose_cw = std::make_shared<Mat44_t>(T);
+        cam_pose_cp = std::make_shared<Mat44_t>(T);
     }
     
-    return cam_pose_cw;
+    return cam_pose_cp;
 }

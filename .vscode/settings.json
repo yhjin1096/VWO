@@ -13,6 +13,7 @@
         "iostream": "cpp",
         "stdexcept": "cpp",
         "chrono": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "new": "cpp"
     }
 }
