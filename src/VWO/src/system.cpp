@@ -39,39 +39,6 @@ System::~System()
     feature_extractor_ = nullptr;
 }
 
-std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)
-{
-    const auto start = std::chrono::system_clock::now();
-    data::Frame curr_frm = createFrame(image, timestamp);
-    const auto end = std::chrono::system_clock::now();
-    double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    
-    std::shared_ptr<Mat44_t> pose_cw;
-    if(exist_prev_)
-        pose_cw = tracker_->trackFrame(curr_frm, prev_frm_);
-    else
-    {
-        pose_cw = std::make_shared<Mat44_t>(Mat44_t::Identity());
-    }
-    prev_frm_ = curr_frm;
-    exist_prev_ = true;
-
-    return pose_cw;
-}
-
-std::shared_ptr<Mat44_t> System::trackTwoFrame(const cv::Mat& prev_image, const cv::Mat& curr_image,
-                            const double prev_timestamp, const double curr_timestamp)
-{
-    data::Frame prev_frm = createFrame(prev_image, prev_timestamp);
-    data::Frame curr_frm = createFrame(curr_image, curr_timestamp);
-    std::shared_ptr<Mat44_t> pose_cp = tracker_->trackFrame(curr_frm, prev_frm);
-
-    // prev_frm.set_pose_cw(Mat44_t::Identity());
-    // curr_frm.set_pose_cw(*pose_cp * prev_frm.get_pose_cw());
-
-    return pose_cp;
-}
-
 data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
 {
      // color conversion
@@ -104,3 +71,42 @@ data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
     
     return data::Frame(next_frame_id_++, timestamp, camera_, orb_params_, frm_obs, image);
 }
+
+std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)
+{
+    const auto start = std::chrono::system_clock::now();
+    data::Frame curr_frm = createFrame(image, timestamp);
+    const auto end = std::chrono::system_clock::now();
+    double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    
+    // return std::make_shared<Mat44_t>(Mat44_t::Identity());
+    return feed_frame(curr_frm, image, extraction_time_elapsed_ms);
+}
+
+std::shared_ptr<Mat44_t> System::feed_frame(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms)
+{
+    const auto start = std::chrono::system_clock::now();
+    
+    const std::shared_ptr<Mat44_t> cam_pose_wc = tracker_->feed_frame(frm);
+
+    const auto end = std::chrono::system_clock::now();
+    double tracking_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    //map publisher, frame_publisher -> pangolin viewer
+
+    return cam_pose_wc;
+}
+
+std::shared_ptr<Mat44_t> System::trackTwoFrame(const cv::Mat& prev_image, const cv::Mat& curr_image,
+                            const double prev_timestamp, const double curr_timestamp)
+{
+    data::Frame prev_frm = createFrame(prev_image, prev_timestamp);
+    data::Frame curr_frm = createFrame(curr_image, curr_timestamp);
+    std::shared_ptr<Mat44_t> pose_cp = tracker_->trackFrame(curr_frm, prev_frm);
+
+    // prev_frm.set_pose_cw(Mat44_t::Identity());
+    // curr_frm.set_pose_cw(*pose_cp * prev_frm.get_pose_cw());
+
+    return pose_cp;
+}
+

@@ -51,6 +51,7 @@ class VWO_node
         message_filters::Subscriber<sensor_msgs::Image> *image_sub_;
         message_filters::Subscriber<nav_msgs::Odometry> *odom_sub_;
         void syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg);
+        void syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg);
 
         cv::Mat prev_image_, curr_image_;
         double prev_timestamp_, curr_timestamp_;

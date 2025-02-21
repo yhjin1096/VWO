@@ -79,6 +79,8 @@ add_executable(${PROJECT_NAME}_node
 
               src/match/area.cpp
 
+              src/module/initializer.cpp
+
               src/solve/common.cpp
               src/solve/essential_solver.cpp
               src/solve/homography_solver.cpp

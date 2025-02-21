@@ -38,12 +38,12 @@ VWO_node::VWO_node()
     tf_ = std::make_unique<tf2_ros::Buffer>(); 
     transform_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_);
 
-    // sub_ = nh_.subscribe(image_topic_name_, 1, &VWO_node::imageCallback, this);
-    image_sub_ = new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_name_, 1);
-    odom_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, odom_name_, 1);
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub_, *odom_sub_);
-    sync->registerCallback(boost::bind(&VWO_node::syncCallback, this, _1, _2));
+    sub_ = nh_.subscribe(image_topic_name_, 1, &VWO_node::imageCallback, this);
+    // image_sub_ = new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_name_, 1);
+    // odom_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, odom_name_, 1);
+    // typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
+    // message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub_, *odom_sub_);
+    // sync->registerCallback(boost::bind(&VWO_node::syncCallback2, this, _1, _2));
 }
 
 // pose는 curr -> prev
@@ -91,32 +91,15 @@ void VWO_node::publishPose(Mat44_t pose, const ros::Time& stamp)
 void VWO_node::imageCallback(const sensor_msgs::ImageConstPtr& image_msg)
 {
     const double timestamp = image_msg->header.stamp.toSec();
-    // system_->trackFrame(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp);
-    cv::Mat image = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image;
-    cv::Mat vis;
-    cv::resize(image, vis, image.size()/2);
-    cv::imshow("vis", vis);
+    image_ = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image;
+    cv::resize(image_, vis_image_, image_.size()/2);
+    cv::imshow("vis", vis_image_);
     char k = cv::waitKey(1);
-    if(k == 's')
-    {
-        prev_image_ = image.clone();
-        prev_timestamp_ = timestamp;
-    }
-    else if(k == 'q')
-    {
-        exit(0);
-    }
-    // else if (k == 'e')
-    // {
-        curr_image_ = image.clone();
-        curr_timestamp_ = timestamp;
-    // }
 
-    if(!prev_image_.empty() && !curr_image_.empty())
-    {
-        std::shared_ptr<Mat44_t> pose_cw = system_->trackTwoFrame(prev_image_, curr_image_, prev_timestamp_, curr_timestamp_);
-        publishPose(*pose_cw, image_msg->header.stamp);
-    }
+    if(k == 'q')
+        exit(0);
+
+    std::shared_ptr<Mat44_t> pose_cw = system_->trackFrame(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp);
 }
 
 void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg)
@@ -152,4 +135,18 @@ void VWO_node::syncCallback(const sensor_msgs::ImageConstPtr& image_msg, const n
         std::shared_ptr<Mat44_t> pose_cw = system_->trackTwoFrame(prev_image_, curr_image_, prev_timestamp_, curr_timestamp_);
         publishPose(*pose_cw, image_msg->header.stamp);
     }
+}
+
+void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const nav_msgs::OdometryConstPtr& odom_msg)
+{
+    const double timestamp = image_msg->header.stamp.toSec();
+    image_ = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image;
+    cv::resize(image_, vis_image_, image_.size()/2);
+    cv::imshow("vis", vis_image_);
+    char k = cv::waitKey(1);
+
+    if(k == 'q')
+        exit(0);
+
+    std::shared_ptr<Mat44_t> pose_cw = system_->trackFrame(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp);
 }
