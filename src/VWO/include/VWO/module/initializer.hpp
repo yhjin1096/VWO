@@ -67,6 +67,8 @@ public:
     //                 data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
     bool initialize(const Camera::setup_type_t setup_type, data::Frame& curr_frm);
 
+    //! initial frame
+    data::Frame init_frm_;
 private:
     // //! map database
     // data::map_database* map_db_ = nullptr;
@@ -118,8 +120,7 @@ private:
 
     //! initializer for monocular
     std::unique_ptr<initialize::base> initializer_ = nullptr;
-    //! initial frame
-    data::Frame init_frm_;
+    
     //! coordinates of previously matched points to perform area-based matching
     std::vector<cv::Point2f> prev_matched_coords_;
     //! initial matching indices (index: idx of initial frame, value: idx of current frame)

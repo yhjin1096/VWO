@@ -63,6 +63,8 @@ class VWO_node
         Eigen::Affine3d base_link_to_camera_affine_;
         Mat44_t prev_odom_, curr_odom_;
         void publishPose(Mat44_t pose, const ros::Time& stamp);
+        
+        void publishPose(Mat44_t pose);
 };
 
 #endif

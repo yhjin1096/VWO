@@ -68,6 +68,17 @@ std::shared_ptr<Mat44_t> TrackingModule::feed_frame(data::Frame curr_frm)
     //         keyfrm_inserter_.insert_new_keyframe(map_db_, curr_frm_);
     //     }
     // }
+    if(succeeded)
+    {
+        
+        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(initializer_.init_frm_.curr_cam_tf_ * curr_frm_.get_pose_wc());
+        return tmp;
+    }
+    else
+    {
+        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(initializer_.init_frm_.curr_cam_tf_);
+        return tmp;
+    }
 
     // state transition
     if (succeeded) {
@@ -105,6 +116,7 @@ std::shared_ptr<Mat44_t> TrackingModule::feed_frame(data::Frame curr_frm)
 }
 
 bool TrackingModule::initialize() {
+    bool succeed;
     {
         // LOCK the map database
         // std::lock_guard<std::mutex> lock1(data::map_database::mtx_database_);
@@ -112,7 +124,7 @@ bool TrackingModule::initialize() {
 
         // try to initialize with the current frame
         // initializer_.initialize(camera_->setup_type_, bow_vocab_, curr_frm_);
-        initializer_.initialize(camera_->setup_type_, curr_frm_);
+        succeed = initializer_.initialize(camera_->setup_type_, curr_frm_);
     }
 
     // if map building was failed -> reset the map database
@@ -134,7 +146,10 @@ bool TrackingModule::initialize() {
     // }
 
     // succeeded
-    return true;
+    if(succeed)
+        return true;
+    else
+        return false;
 }
 
 std::shared_ptr<Mat44_t> TrackingModule::trackFrame(data::Frame curr_frm, data::Frame prev_frm)

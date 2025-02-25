@@ -89,6 +89,29 @@ void VWO_node::publishPose(Mat44_t pose, const ros::Time& stamp)
     // prev odom  curr odom
 }
 
+void VWO_node::publishPose(Mat44_t pose_wc)
+{
+    Eigen::Matrix3d R = pose_wc.block<3,3>(0,0);
+    Eigen::Vector3d t = pose_wc.block<3,1>(0,3);
+
+    // Eigen 회전 행렬을 tf::Quaternion으로 변환
+    tf::Matrix3x3 tf3d(
+        R(0,0), R(0,1), R(0,2),
+        R(1,0), R(1,1), R(1,2),
+        R(2,0), R(2,1), R(2,2)
+    );
+    tf::Quaternion q;
+    tf3d.getRotation(q);
+
+    // tf::Transform에 평행 이동 및 회전 설정
+    tf::Transform transform;
+    transform.setOrigin(tf::Vector3(t(0), t(1), t(2)));
+    transform.setRotation(q);
+
+    // 현재 시간, 부모 프레임과 자식 프레임 설정하여 변환 publish
+    br_.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "camera"));
+}
+
 void VWO_node::imageCallback(const sensor_msgs::ImageConstPtr& image_msg)
 {
     const double timestamp = image_msg->header.stamp.toSec();
@@ -164,6 +187,8 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
     {
         curr_odom_ = odometryToEigen(odom_msg); // odom to base
         Mat44_t curr_cam_tf = curr_odom_ * base_link_to_camera_affine.matrix();
-        std::shared_ptr<Mat44_t> pose_cw = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
+        std::shared_ptr<Mat44_t> pose_wc = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
+        std::cout << *pose_wc << std::endl;
+        publishPose(*pose_wc);
     }
 }
