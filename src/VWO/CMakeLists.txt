@@ -13,6 +13,15 @@ find_package(OpenCV)
 
 find_package(yaml-cpp REQUIRED)
 
+set(fbow_DIRS ${PROJECT_SOURCE_DIR}/thirdparty/FBoW)
+add_subdirectory(${fbow_DIRS} ${PROJECT_BINARY_DIR}/thirdparty/FBoW)
+find_package(fbow QUIET)
+# if(NOT fbow_FOUND)
+#   message("!!!!!!!!!!!!!!!!!!!!! ${fbow}")
+# else()
+#   message("@@@@@@@@@2 ${fbow}")
+# endif()
+
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   geometry_msgs
@@ -51,6 +60,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
   ${OpenCV_INCLUDE_DIRS}
   ${YAML_CPP_INCLUDE_DIRS}
+  ${fbow_INCLUDE_DIRS}
 )
 
 add_executable(${PROJECT_NAME}_node 
@@ -64,6 +74,7 @@ add_executable(${PROJECT_NAME}_node
               src/camera/camera.cpp
               src/camera/perspective.cpp
 
+              src/data/bow_vocabulary.cc
               src/data/common.cpp
               src/data/frame.cpp
               src/data/keyframe.cpp
@@ -99,4 +110,5 @@ target_link_libraries(${PROJECT_NAME}_node
   ${G2O_LIBS}
   ${OpenCV_LIBRARIES}
   yaml-cpp
+  ${fbow_LIBS}
 )

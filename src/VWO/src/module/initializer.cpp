@@ -32,7 +32,7 @@ initializer_state_t Initializer::get_state() const {
     return state_;
 }
 
-bool Initializer::initialize(const Camera::setup_type_t setup_type, data::Frame& curr_frm)
+bool Initializer::initialize(const Camera::setup_type_t setup_type, data::bow_vocabulary* bow_vocab, data::Frame& curr_frm)
 {
     switch (setup_type) {
         case Camera::setup_type_t::Monocular: {
@@ -198,12 +198,21 @@ bool Initializer::create_map_for_monocular(data::Frame& curr_frm)
         }
 
         // set the camera poses
-        init_frm_.set_pose_cw(Mat44_t::Identity());
+        // init_frm_.set_pose_cw(Mat44_t::Identity());
+        // Mat44_t cam_pose_cw = Mat44_t::Identity();
+        // cam_pose_cw.block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
+        // cam_pose_cw.block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
+        
+        // curr_frm.set_pose_cw(cam_pose_cw);
+
+        // SLAM이 시작된 위치의 camera 위치로 초기화(tf로 계산됨, odom -> camera_topRGB_link)
+        // 추후에는 map -> camera_topRGB_link로 변경될 예정
+        init_frm_.set_pose_cw(init_frm_.curr_cam_tf_);
         Mat44_t cam_pose_cw = Mat44_t::Identity();
         cam_pose_cw.block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
         cam_pose_cw.block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
         
-        curr_frm.set_pose_cw(cam_pose_cw);
+        curr_frm.set_pose_cw(cam_pose_cw * init_frm_.get_pose_cw());
 
         // destruct the initializer
         initializer_.reset(nullptr);

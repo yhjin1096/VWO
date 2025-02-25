@@ -64,6 +64,10 @@ class TrackingModule
         //! timestamp of latest frame which succeeded in relocalization
         double last_reloc_frm_timestamp_ = 0.0;
 
+        // Bag of Words
+        //! BoW vocabulary
+        data::bow_vocabulary* bow_vocab_ = nullptr;
+
     private:
         Camera* camera_ = nullptr;
         

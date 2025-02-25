@@ -71,7 +71,7 @@ std::shared_ptr<Mat44_t> TrackingModule::feed_frame(data::Frame curr_frm)
     if(succeeded)
     {
         
-        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(initializer_.init_frm_.curr_cam_tf_ * curr_frm_.get_pose_wc());
+        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(curr_frm_.get_pose_wc());
         return tmp;
     }
     else
@@ -123,8 +123,8 @@ bool TrackingModule::initialize() {
         std::lock_guard<std::mutex> lock2(mtx_stop_keyframe_insertion_);
 
         // try to initialize with the current frame
-        // initializer_.initialize(camera_->setup_type_, bow_vocab_, curr_frm_);
-        succeed = initializer_.initialize(camera_->setup_type_, curr_frm_);
+        initializer_.initialize(camera_->setup_type_, bow_vocab_, curr_frm_);
+        // succeed = initializer_.initialize(camera_->setup_type_, curr_frm_);
     }
 
     // if map building was failed -> reset the map database

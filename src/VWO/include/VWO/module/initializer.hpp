@@ -7,7 +7,7 @@
 #include "VWO/initialize/perspective.h"
 
 #include "VWO/match/area.hpp"
-// #include "stella_vslam/data/bow_vocabulary_fwd.h"
+#include "VWO/data/bow_vocabulary_fwd.h"
 
 #include <memory>
 
@@ -63,9 +63,9 @@ public:
     bool get_use_fixed_seed() const;
 
     //! Initialize with the current frame
-    // bool initialize(const Camera::setup_type_t setup_type,
-    //                 data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
-    bool initialize(const Camera::setup_type_t setup_type, data::Frame& curr_frm);
+    bool initialize(const Camera::setup_type_t setup_type,
+                    data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
+    // bool initialize(const Camera::setup_type_t setup_type, data::Frame& curr_frm);
 
     //! initial frame
     data::Frame init_frm_;

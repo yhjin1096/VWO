@@ -1,3 +1,6 @@
 [submodule "src/VWO/thirdparty/g2o"]
 	path = src/VWO/thirdparty/g2o
 	url = https://github.com/RainerKuemmerle/g2o.git
+[submodule "src/VWO/thirdparty/FBoW"]
+	path = src/VWO/thirdparty/FBoW
+	url = https://github.com/stella-cv/FBoW.git
