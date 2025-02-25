@@ -28,6 +28,7 @@ class System
 
         TrackingModule* tracker_;
         std::shared_ptr<Mat44_t> trackFrame(const cv::Mat &image, const double timestamp);
+        std::shared_ptr<Mat44_t> trackFrameWithOdom(const cv::Mat &image, const double timestamp, const Mat44_t& curr_cam_tf);
 
         cv::Mat mask_;
 
@@ -47,6 +48,9 @@ class System
         std::atomic<unsigned int> next_frame_id_{0};
         data::Frame createFrame(const cv::Mat &image, const double timestamp);
         std::shared_ptr<Mat44_t> feed_frame(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms);
+        
+        data::Frame createFrameWithOdom(const cv::Mat &image, const double timestamp, const Mat44_t& curr_cam_tf);
+        std::shared_ptr<Mat44_t> feedFrameWithOdom(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms);
 };
 
 #endif

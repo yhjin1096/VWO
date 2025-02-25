@@ -39,6 +39,17 @@ System::~System()
     feature_extractor_ = nullptr;
 }
 
+std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)
+{
+    const auto start = std::chrono::system_clock::now();
+    data::Frame curr_frm = createFrame(image, timestamp);
+    const auto end = std::chrono::system_clock::now();
+    double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    
+    // return std::make_shared<Mat44_t>(Mat44_t::Identity());
+    return feed_frame(curr_frm, image, extraction_time_elapsed_ms);
+}
+
 data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
 {
      // color conversion
@@ -72,18 +83,68 @@ data::Frame System::createFrame(const cv::Mat &image, const double timestamp)
     return data::Frame(next_frame_id_++, timestamp, camera_, orb_params_, frm_obs, image);
 }
 
-std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)
+
+std::shared_ptr<Mat44_t> System::feed_frame(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms)
 {
     const auto start = std::chrono::system_clock::now();
-    data::Frame curr_frm = createFrame(image, timestamp);
+    
+    const std::shared_ptr<Mat44_t> cam_pose_wc = tracker_->feed_frame(frm);
+
+    const auto end = std::chrono::system_clock::now();
+    double tracking_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    //map publisher, frame_publisher -> pangolin viewer
+
+    return cam_pose_wc;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+std::shared_ptr<Mat44_t> System::trackFrameWithOdom(const cv::Mat &image, const double timestamp, const Mat44_t& curr_cam_tf)
+{
+    const auto start = std::chrono::system_clock::now();
+    data::Frame curr_frm = createFrameWithOdom(image, timestamp, curr_cam_tf);
     const auto end = std::chrono::system_clock::now();
     double extraction_time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     
     // return std::make_shared<Mat44_t>(Mat44_t::Identity());
-    return feed_frame(curr_frm, image, extraction_time_elapsed_ms);
+    return feedFrameWithOdom(curr_frm, image, extraction_time_elapsed_ms);
 }
 
-std::shared_ptr<Mat44_t> System::feed_frame(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms)
+data::Frame System::createFrameWithOdom(const cv::Mat &image, const double timestamp, const Mat44_t& curr_cam_tf)
+{
+     // color conversion
+    if (!camera_->is_valid_shape(image)) {
+        std::cout << "preprocess: Input image size is invalid" << std::endl;
+    }
+    cv::Mat image_gray = image;
+    cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
+    
+    data::frame_observation frm_obs;
+
+    // Extract ORB feature
+    keypts_.clear();
+    feature_extractor_->extractFeatures(image_gray, mask_, keypts_, frm_obs.descriptors_);
+    if (keypts_.empty()) {
+        std::cout << "preprocess: cannot extract any keypoints" << std::endl;
+    }
+
+    // Undistort keypoints
+    camera_->undistort_keypoints(keypts_, frm_obs.undist_keypts_);
+
+    // Convert to bearing vector
+    camera_->convert_keypoints_to_bearings(frm_obs.undist_keypts_, frm_obs.bearings_);
+
+    // Assign all the keypoints into grid
+    frm_obs.num_grid_cols_ = num_grid_cols_;
+    frm_obs.num_grid_rows_ = num_grid_rows_;
+    data::assign_keypoints_to_grid(camera_, frm_obs.undist_keypts_, frm_obs.keypt_indices_in_cells_,
+                                   frm_obs.num_grid_cols_, frm_obs.num_grid_rows_);
+    
+    return data::Frame(next_frame_id_++, timestamp, camera_, orb_params_, frm_obs, image, curr_cam_tf);
+}
+
+std::shared_ptr<Mat44_t> System::feedFrameWithOdom(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms)
 {
     const auto start = std::chrono::system_clock::now();
     

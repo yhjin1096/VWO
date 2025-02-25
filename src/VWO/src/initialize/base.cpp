@@ -62,7 +62,6 @@ bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots
 
     // reject if the number of valid points does not fulfill the threshold
     if (*max_num_valid_pts_iter < min_num_valid_pts_) {
-        std::cout << 1 << std::endl;
         return false;
     }
 
@@ -72,19 +71,16 @@ bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots
                                                 return 0.8 * (*max_num_valid_pts_iter) < num_valid_pts;
                                             });
     if (1 < num_similars) {
-        std::cout << 2 << std::endl;
         return false;
     }
 
     // reject if the parallax is too small
     if (init_parallax.at(max_num_valid_index) > std::cos(parallax_deg_thr_ / 180.0 * M_PI)) {
-        std::cout << 3 << std::endl;
         return false;
     }
 
     // reject if the number of 3D points does not fulfill the threshold
     if (num_triangulated_pts.at(max_num_valid_index) < min_num_triangulated_) {
-        std::cout << 4 << std::endl;
         return false;
     }
 

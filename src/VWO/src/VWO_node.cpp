@@ -38,12 +38,12 @@ VWO_node::VWO_node()
     tf_ = std::make_unique<tf2_ros::Buffer>(); 
     transform_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_);
 
-    sub_ = nh_.subscribe(image_topic_name_, 1, &VWO_node::imageCallback, this);
-    // image_sub_ = new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_name_, 1);
-    // odom_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, odom_name_, 1);
-    // typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
-    // message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub_, *odom_sub_);
-    // sync->registerCallback(boost::bind(&VWO_node::syncCallback2, this, _1, _2));
+    // sub_ = nh_.subscribe(image_topic_name_, 1, &VWO_node::imageCallback, this);
+    image_sub_ = new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_name_, 1);
+    odom_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, odom_name_, 1);
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
+    message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub_, *odom_sub_);
+    sync->registerCallback(boost::bind(&VWO_node::syncCallback2, this, _1, _2));
 }
 
 // pose는 curr -> prev
@@ -63,6 +63,7 @@ void VWO_node::publishPose(Mat44_t pose, const ros::Time& stamp)
     pose(1, 3) *= scale;
     pose(2, 3) *= scale;
 
+    // odom_to_base * base_to_camera -> 이전 카메라 위치(tf 계산) * pose 변화량(camera 계산)
     Mat44_t pose_oc = prev_odom_ * base_link_to_camera_affine_.matrix() * pose.inverse();
 
     Eigen::Matrix3d R = pose_oc.block<3,3>(0,0);
@@ -148,5 +149,21 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
     if(k == 'q')
         exit(0);
 
-    std::shared_ptr<Mat44_t> pose_cw = system_->trackFrame(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp);
+    Eigen::Affine3d base_link_to_camera_affine;
+    try
+    {
+        auto base_link_to_camera_ = tf_->lookupTransform(base_link_frame_, camera_link_frame, image_msg->header.stamp, ros::Duration(10.0));
+        base_link_to_camera_affine = tf2::transformToEigen(base_link_to_camera_.transform);
+    }
+    catch (tf2::TransformException& ex)
+    {
+        ROS_ERROR("Transform failed: %s", ex.what());
+    }
+
+    if(base_link_to_camera_affine.matrix().cols() != 0 && base_link_to_camera_affine.matrix().rows() != 0)
+    {
+        curr_odom_ = odometryToEigen(odom_msg); // odom to base
+        Mat44_t curr_cam_tf = curr_odom_ * base_link_to_camera_affine.matrix();
+        std::shared_ptr<Mat44_t> pose_cw = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
+    }
 }

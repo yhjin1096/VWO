@@ -34,6 +34,7 @@ public:
 
     //! Initialize with the current frame
     virtual bool initialize(const data::Frame& cur_frm, const std::vector<int>& ref_matches_with_cur) = 0;
+    virtual bool initialize_with_odom(const data::Frame& cur_frm, const std::vector<int>& ref_matches_with_cur, const Mat44_t& relative_cam_tf) = 0;
     
     //! Get the rotation from the reference to the current
     Mat33_t get_rotation_ref_to_cur() const;

@@ -37,8 +37,11 @@ namespace data
              * @param markers_2d
              */
             Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
+                  orb_params* orb_params, const frame_observation frm_obs);
+            Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
                   orb_params* orb_params, const frame_observation frm_obs, cv::Mat image);
-
+            Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
+                  orb_params* orb_params, const frame_observation frm_obs, cv::Mat image, const Mat44_t& curr_cam_tf);
             /**
              * Set camera pose and refresh rotation and translation
              * @param pose_cw
@@ -171,6 +174,7 @@ namespace data
             std::shared_ptr<Keyframe> ref_keyfrm_ = nullptr;
 
             cv::Mat image_;
+            Mat44_t curr_cam_tf_;
 
         private:
             //! landmarks, whose nullptr indicates no-association

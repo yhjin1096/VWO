@@ -14,6 +14,7 @@
         "stdexcept": "cpp",
         "chrono": "cpp",
         "atomic": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "thread": "cpp"
     }
 }

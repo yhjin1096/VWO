@@ -45,12 +45,16 @@ bool Initializer::initialize(const Camera::setup_type_t setup_type, data::Frame&
             // try to initialize
             if (!try_initialize_for_monocular(curr_frm)) {
                 // failed
-                std::cout << "aflewjaiolewfj" << std::endl;
                 return false;
+            }
+            else
+            {
+                std::cout << "try_initialize_for_monocular (OK)" << std::endl;
             }
 
             // create new map if succeeded
             // create_map_for_monocular(bow_vocab, curr_frm);
+            create_map_for_monocular(curr_frm);
             break;
         }
         // case camera::setup_type_t::Stereo:
@@ -76,6 +80,7 @@ bool Initializer::initialize(const Camera::setup_type_t setup_type, data::Frame&
     if (state_ == initializer_state_t::Succeeded) {
         init_frm_id_ = curr_frm.id_;
         init_frm_stamp_ = curr_frm.timestamp_;
+        reset(); // initial 결과만 계속 보기위해 작성 -> stella에서는 pangolin에서 요청 오면 reset
         return true;
     }
     else {
@@ -166,7 +171,46 @@ bool Initializer::try_initialize_for_monocular(data::Frame& curr_frm) {
     // try to initialize with the initial frame and the current frame
     assert(initializer_);
     
-    return initializer_->initialize(curr_frm, init_matches_);
+    // pose 계산, 3d point 계산
+    // curr_frm, init_frm 사이의 relative wheel odom 추가
+    Mat44_t relative_cam_tf = curr_frm.curr_cam_tf_.inverse() * init_frm_.curr_cam_tf_;
+    // std::cout << relative_cam_tf << std::endl;
+    return initializer_->initialize_with_odom(curr_frm, init_matches_, relative_cam_tf);
+}
+
+bool Initializer::create_map_for_monocular(data::Frame& curr_frm)
+{
+    eigen_alloc_vector<Vec3_t> init_triangulated_pts;
+    {
+        assert(initializer_);
+        init_triangulated_pts = initializer_->get_triangulated_pts();
+        const auto is_triangulated = initializer_->get_triangulated_flags();
+
+        // make invalid the matchings which have not been triangulated
+        for (unsigned int i = 0; i < init_matches_.size(); ++i) {
+            if (init_matches_.at(i) < 0) {
+                continue;
+            }
+            if (is_triangulated.at(i)) {
+                continue;
+            }
+            init_matches_.at(i) = -1;
+        }
+
+        // set the camera poses
+        init_frm_.set_pose_cw(Mat44_t::Identity());
+        Mat44_t cam_pose_cw = Mat44_t::Identity();
+        cam_pose_cw.block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
+        cam_pose_cw.block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
+        
+        curr_frm.set_pose_cw(cam_pose_cw);
+
+        // destruct the initializer
+        initializer_.reset(nullptr);
+    }
+
+    state_ = initializer_state_t::Succeeded;
+    return true;
 }
 
 } // namespace module

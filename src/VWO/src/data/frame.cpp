@@ -2,12 +2,28 @@
 
 namespace data
 {
+Frame::Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
+                orb_params* orb_params, const frame_observation frm_obs)
+        :   id_(frame_id), timestamp_(timestamp), camera_(camera), orb_params_(orb_params), frm_obs_(frm_obs),
+            landmarks_(std::vector<std::shared_ptr<Landmark>>(frm_obs_.undist_keypts_.size(), nullptr))
+{
+
+}
 
 Frame::Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
                 orb_params* orb_params, const frame_observation frm_obs, cv::Mat image)
         :   id_(frame_id), timestamp_(timestamp), camera_(camera), orb_params_(orb_params), frm_obs_(frm_obs),
             landmarks_(std::vector<std::shared_ptr<Landmark>>(frm_obs_.undist_keypts_.size(), nullptr)),
             image_(image)
+{
+
+}
+
+Frame::Frame(const unsigned int frame_id, const double timestamp, Camera* camera,
+                orb_params* orb_params, const frame_observation frm_obs, cv::Mat image, const Mat44_t& curr_cam_tf)
+        :   id_(frame_id), timestamp_(timestamp), camera_(camera), orb_params_(orb_params), frm_obs_(frm_obs),
+            landmarks_(std::vector<std::shared_ptr<Landmark>>(frm_obs_.undist_keypts_.size(), nullptr)),
+            image_(image), curr_cam_tf_(curr_cam_tf)
 {
 
 }

@@ -111,6 +111,7 @@ private:
 
     //! Create an initial map with monocular camera setup
     // bool create_map_for_monocular(data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
+    bool create_map_for_monocular(data::Frame& curr_frm);
 
     //! Scaling up or down a initial map
     // void scale_map(const std::shared_ptr<data::keyframe>& init_keyfrm, const std::shared_ptr<data::keyframe>& curr_keyfrm, const double scale);
