@@ -1,7 +1,7 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <Eigen/Dense>
 #include <opencv2/core/mat.hpp>

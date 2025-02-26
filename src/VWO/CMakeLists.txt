@@ -64,21 +64,20 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}_node 
-              src/main.cpp
-              
-              src/VWO_node.cpp
-              src/system.cpp
-
-              src/config.cpp
-
               src/camera/camera.cpp
               src/camera/perspective.cpp
 
+              src/data/bow_database.cc
               src/data/bow_vocabulary.cc
               src/data/common.cpp
+              src/data/camera_database.cc
+              src/data/frame_statistics.cc
               src/data/frame.cpp
+              src/data/graph_node.cc
               src/data/keyframe.cpp
               src/data/landmark.cpp
+              src/data/map_database.cc
+              src/data/orb_params_database.cc
 
               src/feature/feature_extractor.cpp
               src/feature/orb_extractor.cpp
@@ -102,6 +101,12 @@ add_executable(${PROJECT_NAME}_node
               src/util/converter.cpp
               src/util/angle.cpp
               src/util/random_array.cpp
+              src/util/sqlite3.cc
+
+              src/main.cpp
+              src/VWO_node.cpp
+              src/system.cpp
+              src/config.cpp
               )
 
 target_link_libraries(${PROJECT_NAME}_node
@@ -111,4 +116,5 @@ target_link_libraries(${PROJECT_NAME}_node
   ${OpenCV_LIBRARIES}
   yaml-cpp
   ${fbow_LIBS}
+  sqlite3
 )

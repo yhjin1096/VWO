@@ -1,6 +1,6 @@
-#include "VWO/data/frame.hpp"
-#include "VWO/match/area.hpp"
-#include "VWO/util/angle.hpp"
+#include "VWO/data/frame.h"
+#include "VWO/match/area.h"
+#include "VWO/util/angle.h"
 
 namespace match {
 

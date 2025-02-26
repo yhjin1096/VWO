@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_INITIALIZE_PERSPECTIVE_H
 #define STELLA_VSLAM_INITIALIZE_PERSPECTIVE_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 #include "VWO/initialize/base.h"
 
 namespace data {

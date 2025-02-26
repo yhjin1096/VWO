@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <nlohmann/json_fwd.hpp>
 #include <yaml-cpp/yaml.h>

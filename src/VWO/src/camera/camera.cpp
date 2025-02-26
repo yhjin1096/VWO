@@ -1,4 +1,4 @@
-#include "VWO/camera/camera.hpp"
+#include "VWO/camera/camera.h"
 
 #include <iostream>
 #include <opencv2/core/mat.hpp>

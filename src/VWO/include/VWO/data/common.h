@@ -1,8 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "VWO/type.hpp"
-#include "VWO/camera/camera.hpp"
+#include "VWO/type.h"
+#include "VWO/camera/camera.h"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>

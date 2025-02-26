@@ -1,6 +1,7 @@
 <launch>
 	<node name="VWO_node" pkg="VWO" type="VWO_node" output="screen">
 		<param name="config_file_path" type="string" value="$(find VWO)/config/5_37mm.yaml"/>
+		<param name="vocabulary_path" type="string" value="$(find VWO)/orb_vocab.fbow"/>
 		<param name="image_topic" type="string" value="/VPS/image_color"/>
 
 		<param name="odom_frame" type="string" value="odom"/>

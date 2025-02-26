@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_SOLVE_TRIANGULATOR_H
 #define STELLA_VSLAM_SOLVE_TRIANGULATOR_H
 
-#include "stella_vslam/type.h"
+#include "VWO/type.h"
 
 #include <Eigen/SVD>
 #include <opencv2/core/types.hpp>

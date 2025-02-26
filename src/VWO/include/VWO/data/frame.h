@@ -1,19 +1,21 @@
 #ifndef FRAME_HPP
 #define FRAME_HPP
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
-#include "VWO/util/converter.hpp"
+#include "VWO/util/converter.h"
 
-#include "VWO/camera/camera.hpp"
+#include "VWO/camera/camera.h"
 
-#include "VWO/feature/orb_extractor.hpp"
-#include "VWO/feature/orb_params.hpp"
+#include "VWO/feature/orb_extractor.h"
+#include "VWO/feature/orb_params.h"
 
-#include "VWO/data/common.hpp"
-#include "VWO/data/frame_observation.hpp"
-#include "VWO/data/landmark.hpp"
-#include "VWO/data/keyframe.hpp"
+#include "VWO/data/common.h"
+#include "VWO/data/frame_observation.h"
+#include "VWO/data/landmark.h"
+#include "VWO/data/keyframe.h"
+#include "VWO/data/bow_vocabulary.h"
+#include "VWO/data/bow_vocabulary_fwd.h"
 
 namespace data
 {
@@ -106,29 +108,29 @@ namespace data
             /**
              * Compute BoW representation
              */
-            // void compute_bow(bow_vocabulary* bow_vocab);
+            void compute_bow(bow_vocabulary* bow_vocab);
 
             /**
              * Check observability of the landmark
              */
-            bool can_observe(const std::shared_ptr<Landmark>& lm, const float ray_cos_thr,
+            bool can_observe(const std::shared_ptr<landmark>& lm, const float ray_cos_thr,
                             Vec2_t& reproj, float& x_right, unsigned int& pred_scale_level) const;
 
-            bool has_landmark(const std::shared_ptr<Landmark>& lm) const;
+            bool has_landmark(const std::shared_ptr<landmark>& lm) const;
 
-            void add_landmark(const std::shared_ptr<Landmark>&, const unsigned int idx);
+            void add_landmark(const std::shared_ptr<landmark>&, const unsigned int idx);
 
-            std::shared_ptr<Landmark> get_landmark(const unsigned int idx) const;
+            std::shared_ptr<landmark> get_landmark(const unsigned int idx) const;
 
             void erase_landmark_with_index(const unsigned int idx);
 
-            void erase_landmark(const std::shared_ptr<Landmark>& lm);
+            void erase_landmark(const std::shared_ptr<landmark>& lm);
 
-            std::vector<std::shared_ptr<Landmark>> get_landmarks() const;
+            std::vector<std::shared_ptr<landmark>> get_landmarks() const;
 
             void erase_landmarks();
 
-            void set_landmarks(const std::vector<std::shared_ptr<Landmark>>& landmarks);
+            void set_landmarks(const std::vector<std::shared_ptr<landmark>>& landmarks);
 
             /**
              * Get keypoint indices in the cell which reference point is located
@@ -167,19 +169,19 @@ namespace data
             // std::unordered_map<unsigned int, marker2d> markers_2d_;
 
             //! BoW features (DBoW2 or FBoW)
-            // bow_vector bow_vec_;
-            // bow_feature_vector bow_feat_vec_;
+            bow_vector bow_vec_;
+            bow_feature_vector bow_feat_vec_;
 
             //! reference keyframe for tracking
-            std::shared_ptr<Keyframe> ref_keyfrm_ = nullptr;
+            std::shared_ptr<keyframe> ref_keyfrm_ = nullptr;
 
             cv::Mat image_;
             Mat44_t curr_cam_tf_;
 
         private:
             //! landmarks, whose nullptr indicates no-association
-            std::vector<std::shared_ptr<Landmark>> landmarks_;
-            std::unordered_map<std::shared_ptr<Landmark>, unsigned int> landmarks_idx_map_;
+            std::vector<std::shared_ptr<landmark>> landmarks_;
+            std::unordered_map<std::shared_ptr<landmark>, unsigned int> landmarks_idx_map_;
 
             //! camera pose: world -> camera
             bool pose_is_valid_ = false;

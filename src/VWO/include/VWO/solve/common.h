@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_SOLVE_UTIL_H
 #define STELLA_VSLAM_SOLVE_UTIL_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <vector>
 

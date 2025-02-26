@@ -1,8 +1,11 @@
-#include "VWO/tracking/tracking_module.hpp"
+#include "VWO/tracking/tracking_module.h"
 
-TrackingModule::TrackingModule(const std::shared_ptr<Config>& cfg, Camera* camera)
-    : camera_(camera), //vocab
-      initializer_(cfg->yaml_node_["Initializer"]), //map_db, bow_db
+TrackingModule::TrackingModule(const std::shared_ptr<Config>& cfg, Camera* camera, data::map_database* map_db,
+                            data::bow_vocabulary* bow_vocab)
+    : camera_(camera),
+      bow_vocab_(bow_vocab),
+      initializer_(map_db, cfg->yaml_node_["Initializer"]),
+      map_db_(map_db),  //bow_db
       num_ransac_iters_(cfg->yaml_node_["Tracking"]["num_ransac_iterations"].as<unsigned int>(100)),
       min_num_valid_pts_(cfg->yaml_node_["Tracking"]["min_num_valid_pts"].as<unsigned int>(50)),
       min_num_triangulated_pts_(cfg->yaml_node_["Tracking"]["min_num_triangulated_pts"].as<unsigned int>(50)),

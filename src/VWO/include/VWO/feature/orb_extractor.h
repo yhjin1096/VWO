@@ -8,10 +8,10 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 
-#include "VWO/feature/feature_extractor.hpp"
-#include "VWO/feature/orb_params.hpp"
-#include "VWO/feature/orb_impl.hpp"
-#include "VWO/type.hpp"
+#include "VWO/feature/feature_extractor.h"
+#include "VWO/feature/orb_params.h"
+#include "VWO/feature/orb_impl.h"
+#include "VWO/type.h"
 
 
 class ORBExtractor : public FeatureExtractor

@@ -1,27 +1,28 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
-#include "VWO/config.hpp"
+#include "VWO/config.h"
 
-#include "VWO/camera/camera.hpp"
-#include "VWO/camera/perspective.hpp"
+#include "VWO/camera/camera.h"
+#include "VWO/camera/perspective.h"
 
-#include "VWO/feature/feature_extractor.hpp"
-#include "VWO/feature/orb_extractor.hpp"
-#include "VWO/feature/orb_params.hpp"
+#include "VWO/feature/feature_extractor.h"
+#include "VWO/feature/orb_extractor.h"
+#include "VWO/feature/orb_params.h"
 
-#include "VWO/tracking/tracking_module.hpp"
+#include "VWO/tracking/tracking_module.h"
 
-#include "VWO/data/common.hpp"
-#include "VWO/data/frame.hpp"
-#include "VWO/data/frame_observation.hpp"
+#include "VWO/data/common.h"
+#include "VWO/data/frame.h"
+#include "VWO/data/frame_observation.h"
+#include "VWO/data/bow_vocabulary_fwd.h"
 
-#include "VWO/util/yaml.hpp"
+#include "VWO/util/yaml.h"
 
 class System
 {
     public:
-        System(const std::shared_ptr<Config>& cfg);
+        System(const std::shared_ptr<Config>& cfg, const std::string& vocab_file_path);
         ~System();
         Camera* camera_;
         FeatureExtractor* feature_extractor_;
@@ -51,6 +52,12 @@ class System
         
         data::Frame createFrameWithOdom(const cv::Mat &image, const double timestamp, const Mat44_t& curr_cam_tf);
         std::shared_ptr<Mat44_t> feedFrameWithOdom(const data::Frame& frm, const cv::Mat& img, const double extraction_time_elapsed_ms);
+
+        //! map database
+        data::map_database* map_db_ = nullptr;
+
+        //! BoW vocabulary
+        data::bow_vocabulary* bow_vocab_ = nullptr;
 };
 
 #endif

@@ -1,7 +1,7 @@
-#include "VWO/camera/perspective.hpp"
+#include "VWO/camera/perspective.h"
 // #include "VWO/camera/radial_division.h"
 // #include "VWO/camera/fisheye.h"
-#include "VWO/data/frame.hpp"
+#include "VWO/data/frame.h"
 #include "VWO/initialize/perspective.h"
 #include "VWO/solve/homography_solver.h"
 #include "VWO/solve/fundamental_solver.h"
@@ -208,11 +208,15 @@ bool perspective::reconstruct_with_H_and_odom(const Mat33_t& H_ref_to_cur, const
     // hypothesis에 scale 적용
 
     int size = init_transes.size();
+    double relative_distance = relative_cam_tf.block<3, 1>(0, 3).norm();
     double scale;
-    for(int i = 0; i < size; i++)
+    if(relative_distance >= 0.01) // 로봇이 움직인 경우만
     {
-        scale = relative_cam_tf.norm() / init_transes[i].norm();
-        init_transes[i] *= scale;
+        for(int i = 0; i < size; i++)
+        {
+            scale =  relative_distance / init_transes[i].norm();
+            init_transes[i] *= scale;
+        }
     }
 
     const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);
@@ -243,11 +247,16 @@ bool perspective::reconstruct_with_F_and_odom(const Mat33_t& F_ref_to_cur, const
     init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
 
     int size = init_transes.size();
+    double relative_distance = relative_cam_tf.block<3, 1>(0, 3).norm();
     double scale;
-    for(int i = 0; i < size; i++)
+    
+    if(relative_distance >= 0.01) // 로봇이 움직인 경우만
     {
-        scale = init_transes[size-1].norm() / init_transes[i].norm();
-        init_transes[i] *= scale;
+        for(int i = 0; i < size; i++)
+        {
+            scale = relative_distance / init_transes[i].norm();
+            init_transes[i] *= scale;
+        }
     }
 
     const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);

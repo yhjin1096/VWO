@@ -1,9 +1,9 @@
 #ifndef PERSPECTIVE_HPP
 #define PERSPECTIVE_HPP
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
-#include "VWO/camera/camera.hpp"
+#include "VWO/camera/camera.h"
 
 #include <opencv2/opencv.hpp>
 

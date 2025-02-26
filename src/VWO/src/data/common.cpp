@@ -1,6 +1,6 @@
-#include "VWO/data/common.hpp"
-#include "VWO/data/frame_observation.hpp"
-#include "VWO/camera/perspective.hpp"
+#include "VWO/data/common.h"
+#include "VWO/data/frame_observation.h"
+#include "VWO/camera/perspective.h"
 
 #include <nlohmann/json.hpp>
 

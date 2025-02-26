@@ -1,4 +1,4 @@
-#include "VWO/util/angle.hpp"
+#include "VWO/util/angle.h"
 
 namespace util {
 namespace angle {

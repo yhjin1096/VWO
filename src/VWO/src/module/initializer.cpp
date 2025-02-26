@@ -1,10 +1,12 @@
-#include "VWO/module/initializer.hpp"
+#include "VWO/module/initializer.h"
 
 namespace module
 {
 
-Initializer::Initializer(const YAML::Node& yaml_node)
-    : num_ransac_iters_(yaml_node["num_ransac_iterations"].as<unsigned int>(100)),
+Initializer::Initializer(data::map_database* map_db, 
+                        const YAML::Node& yaml_node)
+    : map_db_(map_db), //bow_db
+      num_ransac_iters_(yaml_node["num_ransac_iterations"].as<unsigned int>(100)),
       min_num_valid_pts_(yaml_node["min_num_valid_pts"].as<unsigned int>(50)),
       min_num_triangulated_pts_(yaml_node["min_num_triangulated_pts"].as<unsigned int>(50)),
       parallax_deg_thr_(yaml_node["parallax_deg_threshold"].as<float>(1.0)),
@@ -53,8 +55,8 @@ bool Initializer::initialize(const Camera::setup_type_t setup_type, data::bow_vo
             }
 
             // create new map if succeeded
-            // create_map_for_monocular(bow_vocab, curr_frm);
-            create_map_for_monocular(curr_frm);
+            create_map_for_monocular(bow_vocab, curr_frm);
+            
             break;
         }
         // case camera::setup_type_t::Stereo:
@@ -178,7 +180,7 @@ bool Initializer::try_initialize_for_monocular(data::Frame& curr_frm) {
     return initializer_->initialize_with_odom(curr_frm, init_matches_, relative_cam_tf);
 }
 
-bool Initializer::create_map_for_monocular(data::Frame& curr_frm)
+bool Initializer::create_map_for_monocular(data::bow_vocabulary* bow_vocab, data::Frame& curr_frm)
 {
     eigen_alloc_vector<Vec3_t> init_triangulated_pts;
     {
@@ -198,13 +200,6 @@ bool Initializer::create_map_for_monocular(data::Frame& curr_frm)
         }
 
         // set the camera poses
-        // init_frm_.set_pose_cw(Mat44_t::Identity());
-        // Mat44_t cam_pose_cw = Mat44_t::Identity();
-        // cam_pose_cw.block<3, 3>(0, 0) = initializer_->get_rotation_ref_to_cur();
-        // cam_pose_cw.block<3, 1>(0, 3) = initializer_->get_translation_ref_to_cur();
-        
-        // curr_frm.set_pose_cw(cam_pose_cw);
-
         // SLAM이 시작된 위치의 camera 위치로 초기화(tf로 계산됨, odom -> camera_topRGB_link)
         // 추후에는 map -> camera_topRGB_link로 변경될 예정
         init_frm_.set_pose_cw(init_frm_.curr_cam_tf_);
@@ -217,6 +212,9 @@ bool Initializer::create_map_for_monocular(data::Frame& curr_frm)
         // destruct the initializer
         initializer_.reset(nullptr);
     }
+    // create initial keyframes
+    auto init_keyfrm = data::keyframe::make_keyframe(map_db_->next_keyframe_id_++, init_frm_);
+    auto curr_keyfrm = data::keyframe::make_keyframe(map_db_->next_keyframe_id_++, curr_frm);
 
     state_ = initializer_state_t::Succeeded;
     return true;

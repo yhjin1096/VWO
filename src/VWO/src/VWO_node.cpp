@@ -1,4 +1,4 @@
-#include <VWO/VWO_node.hpp>
+#include <VWO/VWO_node.h>
 
 Eigen::Matrix4d odometryToEigen(const nav_msgs::OdometryConstPtr& odom) {
     Mat44_t T = Eigen::Matrix4d::Identity();
@@ -26,13 +26,14 @@ VWO_node::VWO_node()
     // launch 파일에서 
     ros::NodeHandle tmp_nh("~");
     tmp_nh.getParam("config_file_path", config_file_path_);
+    tmp_nh.getParam("vocabulary_path", vocabulary_path_);
     tmp_nh.getParam("image_topic", image_topic_name_);
     tmp_nh.getParam("odom_frame", odom_name_);
     tmp_nh.getParam("base_link_frame", base_link_frame_);
     tmp_nh.getParam("camera_link_frame", camera_link_frame);
     
     config_ = std::make_shared<Config>(config_file_path_);
-    system_ = std::make_shared<System>(config_);
+    system_ = std::make_shared<System>(config_, vocabulary_path_);
     // system_->run(); // map 관리, visualizer, optimization 등
 
     tf_ = std::make_unique<tf2_ros::Buffer>(); 
@@ -188,7 +189,7 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
         curr_odom_ = odometryToEigen(odom_msg); // odom to base
         Mat44_t curr_cam_tf = curr_odom_ * base_link_to_camera_affine.matrix();
         std::shared_ptr<Mat44_t> pose_wc = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
-        std::cout << *pose_wc << std::endl;
+        // std::cout << *pose_wc << std::endl;
         publishPose(*pose_wc);
     }
 }

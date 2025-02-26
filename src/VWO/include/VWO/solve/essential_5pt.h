@@ -23,7 +23,7 @@
 
 #include <Eigen/Dense>
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 /**
  * This file contains helper functions to compute the essential matrix from 5 bearing vector correspondences.

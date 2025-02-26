@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_SOLVE_ESSENTIAL_SOLVER_H
 #define STELLA_VSLAM_SOLVE_ESSENTIAL_SOLVER_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <vector>
 #include <random>

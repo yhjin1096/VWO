@@ -1,4 +1,4 @@
-#include "VWO/config.hpp"
+#include "VWO/config.h"
 
 Config::Config(const std::string& config_file_path)
 {

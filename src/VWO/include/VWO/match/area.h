@@ -1,7 +1,7 @@
 #ifndef AREA_H
 #define AREA_H
 
-#include "VWO/match/base.hpp"
+#include "VWO/match/base.h"
 
 
 namespace data {

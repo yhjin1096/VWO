@@ -22,8 +22,8 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "VWO/system.hpp"
-#include "VWO/config.hpp"
+#include "VWO/system.h"
+#include "VWO/config.h"
 
 class VWO_node
 {
@@ -34,6 +34,7 @@ class VWO_node
 
         // ros param
         std::string config_file_path_;
+        std::string vocabulary_path_;
         std::string image_topic_name_;
         std::string odom_name_;
         std::string base_link_frame_;

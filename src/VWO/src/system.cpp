@@ -1,6 +1,6 @@
-#include "VWO/system.hpp"
+#include "VWO/system.h"
 
-System::System(const std::shared_ptr<Config>& cfg)
+System::System(const std::shared_ptr<Config>& cfg, const std::string& vocab_file_path)
     : config_(cfg)
 {
     // camera
@@ -22,9 +22,13 @@ System::System(const std::shared_ptr<Config>& cfg)
     {
         feature_extractor_ = new ORBExtractor(orb_params_, min_size, mask_rectangles);
     }
+
+    // ORB vocabulary
+    map_db_ = new data::map_database(config_->yaml_node_["System"]["min_num_shared_lms"].as<unsigned int>(15));
+    bow_vocab_ = data::bow_vocabulary_util::load(vocab_file_path);
     
-    //tracker
-    tracker_ = new TrackingModule(cfg, camera_);
+    // tracker
+    tracker_ = new TrackingModule(cfg, camera_, map_db_, bow_vocab_);
 }
 
 System::~System()

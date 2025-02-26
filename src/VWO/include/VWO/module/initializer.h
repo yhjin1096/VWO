@@ -1,12 +1,13 @@
 #ifndef VWO_MODULE_INITIALIZER_H
 #define VWO_MODULE_INITIALIZER_H
 
-#include "VWO/data/frame.hpp"
+#include "VWO/data/frame.h"
+#include "VWO/data/map_database.h"
 
 #include "VWO/initialize/base.h"
 #include "VWO/initialize/perspective.h"
 
-#include "VWO/match/area.hpp"
+#include "VWO/match/area.h"
 #include "VWO/data/bow_vocabulary_fwd.h"
 
 #include <memory>
@@ -20,7 +21,7 @@ class config;
 
 namespace data {
 class Frame;
-// class map_database;
+class map_database;
 // class bow_database;
 } // namespace data
 
@@ -42,7 +43,7 @@ public:
     // Initializer(data::map_database* map_db, data::bow_database* bow_db,
     //             const YAML::Node& yaml_node);
 
-    Initializer(const YAML::Node& yaml_node);
+    Initializer(data::map_database* map_db, const YAML::Node& yaml_node);
 
     //! Destructor
     ~Initializer();
@@ -71,7 +72,7 @@ public:
     data::Frame init_frm_;
 private:
     // //! map database
-    // data::map_database* map_db_ = nullptr;
+    data::map_database* map_db_ = nullptr;
     // //! BoW database
     // data::bow_database* bow_db_ = nullptr;
     //! initializer status
@@ -112,8 +113,8 @@ private:
     bool try_initialize_for_monocular(data::Frame& curr_frm);
 
     //! Create an initial map with monocular camera setup
-    // bool create_map_for_monocular(data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
-    bool create_map_for_monocular(data::Frame& curr_frm);
+    bool create_map_for_monocular(data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);
+    // bool create_map_for_monocular(data::Frame& curr_frm);
 
     //! Scaling up or down a initial map
     // void scale_map(const std::shared_ptr<data::keyframe>& init_keyfrm, const std::shared_ptr<data::keyframe>& curr_keyfrm, const double scale);
@@ -130,7 +131,7 @@ private:
     // for stereo or RGBD camera model
 
     //! Try to initialize a map with stereo or RGBD camera setup
-    bool try_initialize_for_stereo(data::Frame& curr_frm);
+    // bool try_initialize_for_stereo(data::Frame& curr_frm);
 
     //! Create an initial map with stereo or RGBD camera setup
     // bool create_map_for_stereo(data::bow_vocabulary* bow_vocab, data::Frame& curr_frm);

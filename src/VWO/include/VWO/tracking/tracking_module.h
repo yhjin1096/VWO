@@ -8,19 +8,21 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
-#include "VWO/config.hpp"
+#include "VWO/config.h"
 
-#include "VWO/camera/camera.hpp"
-#include "VWO/camera/perspective.hpp"
+#include "VWO/camera/camera.h"
+#include "VWO/camera/perspective.h"
 
-#include "VWO/data/frame.hpp"
+#include "VWO/data/frame.h"
+#include "VWO/data/bow_vocabulary.h"
+#include "VWO/data/bow_vocabulary_fwd.h"
 
-#include "VWO/match/area.hpp"
+#include "VWO/match/area.h"
 
 #include "VWO/initialize/base.h"
 #include "VWO/initialize/perspective.h"
 ///////
-#include "VWO/module/initializer.hpp"
+#include "VWO/module/initializer.h"
 
 enum class tracker_state_t {
     Initializing,
@@ -32,7 +34,8 @@ class TrackingModule
 {
     public:
         TrackingModule() = default;
-        TrackingModule(const std::shared_ptr<Config>& cfg, Camera* camera);
+        TrackingModule(const std::shared_ptr<Config>& cfg, Camera* camera, data::map_database* map_db,
+                    data::bow_vocabulary* bow_vocab);
         ~TrackingModule();
 
         std::shared_ptr<Mat44_t> feed_frame(data::Frame curr_frm);
@@ -63,6 +66,9 @@ class TrackingModule
         unsigned int last_reloc_frm_id_ = 0;
         //! timestamp of latest frame which succeeded in relocalization
         double last_reloc_frm_timestamp_ = 0.0;
+
+        //! map_database
+        data::map_database* map_db_ = nullptr;
 
         // Bag of Words
         //! BoW vocabulary

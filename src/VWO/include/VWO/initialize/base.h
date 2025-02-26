@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_INITIALIZE_BASE_H
 #define STELLA_VSLAM_INITIALIZE_BASE_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <vector>
 

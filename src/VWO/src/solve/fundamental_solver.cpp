@@ -1,9 +1,9 @@
 #include "VWO/solve/common.h"
 #include "VWO/solve/essential_solver.h"
 #include "VWO/solve/fundamental_solver.h"
-#include "VWO/util/converter.hpp"
+#include "VWO/util/converter.h"
 #include "VWO/util/random_array.h"
-#include "VWO/util/trigonometric.hpp"
+#include "VWO/util/trigonometric.h"
 
 namespace solve {
 

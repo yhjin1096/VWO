@@ -1,5 +1,5 @@
 #include "VWO/data/bow_vocabulary.h"
-#include "VWO/util/converter.hpp"
+#include "VWO/util/converter.h"
 // #include <spdlog/spdlog.h>
 
 namespace data {

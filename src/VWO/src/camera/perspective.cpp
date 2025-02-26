@@ -1,4 +1,4 @@
-#include "VWO/camera/perspective.hpp"
+#include "VWO/camera/perspective.h"
 
 Perspective::Perspective(const std::string& name, const setup_type_t& setup_type, const color_order_t& color_order,
                          const unsigned int cols, const unsigned int rows, const double fps,

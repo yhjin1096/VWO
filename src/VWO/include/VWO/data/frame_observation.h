@@ -1,7 +1,7 @@
 #ifndef FRAME_OBSERVATION_H
 #define FRAME_OBSERVATION_H
 
-#include "VWO/type.hpp"
+#include "VWO/type.h"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>

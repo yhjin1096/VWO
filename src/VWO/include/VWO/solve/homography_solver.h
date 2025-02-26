@@ -1,7 +1,7 @@
 #ifndef STELLA_VSLAM_SOLVE_HOMOGRAPHY_SOLVER_H
 #define STELLA_VSLAM_SOLVE_HOMOGRAPHY_SOLVER_H
 
-#include "VWO/camera/camera.hpp"
+#include "VWO/camera/camera.h"
 
 #include <vector>
 #include <random>

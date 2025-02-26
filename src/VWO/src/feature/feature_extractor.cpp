@@ -1,1 +1,1 @@
-#include "VWO/feature/feature_extractor.hpp"
+#include "VWO/feature/feature_extractor.h"

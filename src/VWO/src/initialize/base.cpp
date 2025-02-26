@@ -1,4 +1,4 @@
-#include "VWO/data/frame.hpp"
+#include "VWO/data/frame.h"
 #include "VWO/initialize/base.h"
 #include "VWO/solve/triangulator.h"
 
