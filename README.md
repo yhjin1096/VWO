@@ -16,23 +16,15 @@ cd build
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/home/cona/yhj/VWO/src/VWO/thirdparty/g2o/install \
-    -DBUILD_DOCS=OFF \
-    -DBUILD_EXAMPLES=OFF \
-    -DBUILD_JASPER=OFF \
-    -DBUILD_OPENEXR=OFF \
-    -DBUILD_PERF_TESTS=OFF \
-    -DBUILD_TESTS=OFF \
-    -DBUILD_PROTOBUF=OFF \
-    -DBUILD_opencv_apps=OFF \
-    -DBUILD_opencv_dnn=OFF \
-    -DBUILD_opencv_ml=OFF \
-    -DBUILD_opencv_python_bindings_generator=OFF \
-    -DENABLE_CXX11=ON \
-    -DENABLE_FAST_MATH=ON \
-    -DWITH_EIGEN=ON \
-    -DWITH_FFMPEG=ON \
-    -DWITH_TBB=ON \
-    -DWITH_OPENMP=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_UNITTESTS=OFF \
+    -DG2O_USE_CHOLMOD=OFF \
+    -DG2O_USE_CSPARSE=ON \
+    -DG2O_USE_OPENGL=OFF \
+    -DG2O_USE_OPENMP=OFF \
+    -DG2O_BUILD_APPS=OFF \
+    -DG2O_BUILD_EXAMPLES=OFF \
+    -DG2O_BUILD_LINKED_APPS=OFF \
     ..
 ```
 ### second method
