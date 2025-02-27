@@ -11,6 +11,7 @@ sudo apt install libeigen3-dev libspdlog-dev libsuitesparse-dev qtdeclarative5-d
 ```
 git clone https://github.com/RainerKuemmerle/g2o.git
 cd g2o
+git checkout 20230223_git
 mkdir build install
 cd build
 cmake \
