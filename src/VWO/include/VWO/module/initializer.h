@@ -8,7 +8,10 @@
 #include "VWO/initialize/perspective.h"
 
 #include "VWO/match/area.h"
+
 #include "VWO/data/bow_vocabulary_fwd.h"
+
+#include "VWO/optimize/global_bundle_adjuster.h"
 
 #include <memory>
 

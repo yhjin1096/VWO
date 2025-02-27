@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(VWO)
 
-set(G2O_ROOT ${CMAKE_HOME_DIRECTORY}/third_party/g2o)
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/thirdparty/g2o/cmake_modules)
-
-set(G2O_LIBS_DIRS ${PROJECT_SOURCE_DIR}/thirdparty/g2o/build/lib)
-set(G2O_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/g2o)
+# set(g2o_DIR "${PROJECT_SOURCE_DIR}/thirdparty/g2o/install/lib/cmake/g2o")
+find_package(g2o REQUIRED)
+# get_target_property(_g2o_core_inc        g2o::core INTERFACE_INCLUDE_DIRECTORIES)
+# get_target_property(_g2o_core_location  g2o::core IMPORTED_LOCATION_RELEASE) # 또는 IMPORTED_LOCATION
+# message(STATUS "g2o::core include dirs: ${_g2o_core_inc}")
+# message(STATUS "g2o::core library loc: ${_g2o_core_location}")
 
 find_package(Eigen3 REQUIRED)
 
@@ -16,11 +17,6 @@ find_package(yaml-cpp REQUIRED)
 set(fbow_DIRS ${PROJECT_SOURCE_DIR}/thirdparty/FBoW)
 add_subdirectory(${fbow_DIRS} ${PROJECT_BINARY_DIR}/thirdparty/FBoW)
 find_package(fbow QUIET)
-# if(NOT fbow_FOUND)
-#   message("!!!!!!!!!!!!!!!!!!!!! ${fbow}")
-# else()
-#   message("@@@@@@@@@2 ${fbow}")
-# endif()
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
@@ -42,25 +38,14 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-link_directories(${G2O_LIBS_DIRS})
-
-set(G2O_LIBS
-    g2o_core 
-    g2o_types_sba 
-    g2o_types_slam3d
-    g2o_solver_csparse 
-    g2o_stuff 
-    g2o_csparse_extension
-)
-
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${G2O_INCLUDE_DIR}
   ${EIGEN3_INCLUDE_DIR}
   ${OpenCV_INCLUDE_DIRS}
   ${YAML_CPP_INCLUDE_DIRS}
   ${fbow_INCLUDE_DIRS}
+  /usr/include/suitesparse #sudo apt-get install libsuitesparse-dev
 )
 
 add_executable(${PROJECT_NAME}_node 
@@ -92,6 +77,7 @@ add_executable(${PROJECT_NAME}_node
               src/module/initializer.cpp
 
               src/optimize/global_bundle_adjuster.cc
+              src/optimize/terminate_action.cc
 
               src/solve/common.cpp
               src/solve/essential_solver.cpp
@@ -114,9 +100,16 @@ add_executable(${PROJECT_NAME}_node
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${EIGEN3_LIBS}
-  ${G2O_LIBS}
   ${OpenCV_LIBRARIES}
   yaml-cpp
   ${fbow_LIBS}
   sqlite3
+  g2o::core
+  g2o::stuff
+  g2o::types_sba
+  g2o::types_sim3
+  g2o::solver_dense
+  g2o::solver_eigen
+  g2o::solver_csparse
+  g2o::csparse_extension
 )

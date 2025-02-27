@@ -189,7 +189,7 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
         curr_odom_ = odometryToEigen(odom_msg); // odom to base
         Mat44_t curr_cam_tf = curr_odom_ * base_link_to_camera_affine.matrix();
         std::shared_ptr<Mat44_t> pose_wc = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
-        // std::cout << *pose_wc << std::endl;
+        std::cout << *pose_wc << std::endl;
         publishPose(*pose_wc);
     }
 }
