@@ -215,6 +215,60 @@ bool Initializer::create_map_for_monocular(data::bow_vocabulary* bow_vocab, data
     // create initial keyframes
     auto init_keyfrm = data::keyframe::make_keyframe(map_db_->next_keyframe_id_++, init_frm_);
     auto curr_keyfrm = data::keyframe::make_keyframe(map_db_->next_keyframe_id_++, curr_frm);
+    curr_keyfrm->graph_node_->set_spanning_parent(init_keyfrm);
+    init_keyfrm->graph_node_->add_spanning_child(curr_keyfrm);
+    init_keyfrm->graph_node_->set_spanning_root(init_keyfrm);
+    curr_keyfrm->graph_node_->set_spanning_root(init_keyfrm);
+    map_db_->add_spanning_root(init_keyfrm);
+
+    // compute BoW representations
+    init_keyfrm->compute_bow(bow_vocab);
+    curr_keyfrm->compute_bow(bow_vocab);
+
+    // add the keyframes to the map DB
+    map_db_->add_keyframe(init_keyfrm);
+    map_db_->add_keyframe(curr_keyfrm);
+    
+    // update the frame statistics
+    init_frm_.ref_keyfrm_ = init_keyfrm;
+    curr_frm.ref_keyfrm_ = curr_keyfrm;
+    map_db_->update_frame_statistics(init_frm_, false);
+    map_db_->update_frame_statistics(curr_frm, false);
+
+    // assign 2D-3D associations
+    std::vector<std::shared_ptr<data::landmark>> lms;
+    for(unsigned int init_idx = 0; init_idx < init_matches_.size(); init_idx++)
+    {
+        const auto curr_idx = init_matches_.at(init_idx);
+        if(curr_idx < 0)
+            continue;
+        
+        // construct a landmark
+        // 왜 curr 일까?
+        std::shared_ptr<data::landmark> lm = std::make_shared<data::landmark>(map_db_->next_landmark_id_++, init_triangulated_pts.at(init_idx), curr_keyfrm);
+
+        //set the associations to the new keyframes
+        lm->connect_to_keyframe(init_keyfrm, init_idx);
+        lm->connect_to_keyframe(curr_keyfrm, init_idx);
+
+        // update the descriptor - median
+        lm->compute_descriptor();
+        // update the geometry
+        lm->update_mean_normal_and_obs_scale_variance();
+
+        // set the 2D-3D assocications to the current frame
+        curr_frm.add_landmark(lm, curr_idx);
+
+        // add the landmark to the map DB
+        map_db_->add_landmark(lm);
+        lms.push_back(lm);
+    }
+    // global bundle adjustment
+    // const auto global_bundle_adjuster = optimize::global_bundle_adjuster(num_ba_iters_, true);
+    // std::vector<std::shared_ptr<data::keyframe>> keyfrms{init_keyfrm, curr_keyfrm};
+    // global_bundle_adjuster.optimize_for_initialization(keyfrms, lms, markers);
+
+    curr_frm.set_pose_cw(curr_keyfrm->get_pose_cw());    
 
     state_ = initializer_state_t::Succeeded;
     return true;

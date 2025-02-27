@@ -91,6 +91,8 @@ add_executable(${PROJECT_NAME}_node
 
               src/module/initializer.cpp
 
+              src/optimize/global_bundle_adjuster.cc
+
               src/solve/common.cpp
               src/solve/essential_solver.cpp
               src/solve/homography_solver.cpp

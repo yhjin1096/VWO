@@ -62,8 +62,21 @@ Mat33_t Frame::get_rot_wc() const {
     return rot_wc_;
 }
 
-std::vector<std::shared_ptr<landmark>> Frame::get_landmarks() const {
+std::vector<std::shared_ptr<landmark>> Frame::get_landmarks() const
+{
     return landmarks_;
+}
+
+bool Frame::has_landmark(const std::shared_ptr<landmark>& lm) const
+{
+    return static_cast<bool>(landmarks_idx_map_.count(lm));
+}
+
+void Frame::add_landmark(const std::shared_ptr<landmark>& lm, const unsigned int idx)
+{
+    assert(!has_landmark(lm));
+    landmarks_.at(idx) = lm;
+    landmarks_idx_map_[lm] = idx;
 }
 
 } // namespace data
