@@ -66,6 +66,7 @@ class VWO_node
         void publishPose(Mat44_t pose, const ros::Time& stamp);
         
         void publishPose(Mat44_t pose);
+        std::shared_ptr<Mat44_t> pose_wc_;
 };
 
 #endif
