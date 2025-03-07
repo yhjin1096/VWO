@@ -23,7 +23,8 @@ keyframe::keyframe(unsigned int id, const Frame& frm)
       camera_(frm.camera_), orb_params_(frm.orb_params_),
       frm_obs_(frm.frm_obs_), /*markers_2d_(frm.markers_2d_),*/
       bow_vec_(frm.bow_vec_), bow_feat_vec_(frm.bow_feat_vec_),
-      landmarks_(frm.get_landmarks()) {
+      landmarks_(frm.get_landmarks()),
+      curr_cam_tf_(frm.curr_cam_tf_) {
     // set pose parameters (pose_wc_, trans_wc_) using frm.pose_cw_
     set_pose_cw(frm.get_pose_cw());
 }

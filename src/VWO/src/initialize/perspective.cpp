@@ -243,8 +243,8 @@ bool perspective::reconstruct_with_F_and_odom(const Mat33_t& F_ref_to_cur, const
 
     // wheel odom으로 얻은 카메라의 relative pose 추가 및
     // hypothesis에 scale 적용
-    init_rots.push_back(relative_cam_tf.block<3, 3>(0, 0));
-    init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
+    // init_rots.push_back(relative_cam_tf.block<3, 3>(0, 0));
+    // init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
 
     int size = init_transes.size();
     double relative_distance = relative_cam_tf.block<3, 1>(0, 3).norm();

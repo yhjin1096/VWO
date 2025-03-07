@@ -282,6 +282,8 @@ public:
     //! graph node
     std::unique_ptr<graph_node> graph_node_ = nullptr;
 
+    Mat44_t curr_cam_tf_;
+
 private:
     //-----------------------------------------
     // camera pose

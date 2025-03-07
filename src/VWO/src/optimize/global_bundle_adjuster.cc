@@ -10,6 +10,8 @@
 #include "VWO/optimize/internal/se3/reproj_edge_wrapper.h"
 #include "VWO/util/converter.h"
 
+#include "VWO/optimize/internal/se3/wheel_odom_edge_wrapper.h"
+
 #include <g2o/core/solver.h>
 #include <g2o/core/block_solver.h>
 #include <g2o/core/sparse_optimizer.h>
@@ -59,6 +61,43 @@ void optimize_impl(g2o::SparseOptimizer& optimizer,
         auto keyfrm_vtx = keyfrm_vtx_container.create_vertex(keyfrm, keyfrm->graph_node_->is_spanning_root());
         optimizer.addVertex(keyfrm_vtx);
     }
+
+
+    // // edge 추가(keyframe-keyframe using wheel odometry)
+    // using wheel_odom_edge_wrapper = internal::se3::wheel_odom_edge_wrapper<data::keyframe>;
+    // for(int i = 1; i < keyfrms.size(); i++)
+    // {
+        
+    //     if (!keyfrms[i-1] || !keyfrms[i]) {
+    //         continue;
+    //     }
+    //     if (keyfrms[i-1]->will_be_erased() || keyfrms[i]->will_be_erased()) {
+    //         continue;
+    //     }
+
+    //     if (!keyfrm_vtx_container.contain(keyfrms[i-1]) || !keyfrm_vtx_container.contain(keyfrms[i])) {
+    //         continue;
+    //     }
+    //     Mat44_t relative_odom = keyfrms[i]->curr_cam_tf_.inverse() * keyfrms[i-1]->curr_cam_tf_;
+    //     Eigen::Quaterniond q(relative_odom.block<3,3>(0,0));
+    //     g2o::SE3Quat relative_pose;
+    //     relative_pose.setRotation(q);
+    //     relative_pose.setTranslation(relative_odom.block<3,1>(0,3));
+        
+    //     const auto keyfrm_vtx1 = keyfrm_vtx_container.get_vertex(keyfrms[i-1]);
+    //     const auto keyfrm_vtx2 = keyfrm_vtx_container.get_vertex(keyfrms[i]);
+
+    //     // std::cout << "--------------------" << std::endl;
+    //     // std::cout << relative_odom << std::endl;
+    //     // std::cout << keyfrm_vtx1->estimate() << std::endl;
+    //     // std::cout << keyfrm_vtx2->estimate() << std::endl;
+    //     // std::cout << "--------------------" << std::endl;
+
+    //     auto wheel_odom_edge_wrap = wheel_odom_edge_wrapper(keyfrms[i-1], keyfrm_vtx1,
+    //                                                         keyfrms[i], keyfrm_vtx2,
+    //                                                         relative_pose);
+    //     optimizer.addEdge(wheel_odom_edge_wrap.edge_);
+    // }
 
     // 4. Connect the vertices of the keyframe and the landmark by using reprojection edge
 

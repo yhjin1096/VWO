@@ -85,6 +85,7 @@ bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots
     }
 
     // store the reconstructed map
+    
     rot_ref_to_cur_ = init_rots.at(max_num_valid_index);
     trans_ref_to_cur_ = init_transes.at(max_num_valid_index);
     triangulated_pts_ = init_triangulated_pts.at(max_num_valid_index);

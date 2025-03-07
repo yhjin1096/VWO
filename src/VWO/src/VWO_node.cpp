@@ -30,7 +30,7 @@ VWO_node::VWO_node()
     tmp_nh.getParam("image_topic", image_topic_name_);
     tmp_nh.getParam("odom_frame", odom_name_);
     tmp_nh.getParam("base_link_frame", base_link_frame_);
-    tmp_nh.getParam("camera_link_frame", camera_link_frame);
+    tmp_nh.getParam("camera_link_frame", camera_link_frame_);
     
     config_ = std::make_shared<Config>(config_file_path_);
     system_ = std::make_shared<System>(config_, vocabulary_path_);
@@ -45,12 +45,14 @@ VWO_node::VWO_node()
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, nav_msgs::Odometry> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> *sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), *image_sub_, *odom_sub_);
     sync->registerCallback(boost::bind(&VWO_node::syncCallback2, this, _1, _2));
+
+    pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("pointcloud", 1);
 }
 
 // pose는 curr -> prev
 void VWO_node::publishPose(Mat44_t pose, const ros::Time& stamp)
 {
-    auto base_link_to_camera_ = tf_->lookupTransform(base_link_frame_, camera_link_frame, stamp, ros::Duration(10.0));
+    auto base_link_to_camera_ = tf_->lookupTransform(base_link_frame_, camera_link_frame_, stamp, ros::Duration(10.0));
     base_link_to_camera_affine_ = tf2::transformToEigen(base_link_to_camera_.transform);
     
     //prev_odom curr_odom 차이 -> scale
@@ -111,6 +113,53 @@ void VWO_node::publishPose(Mat44_t pose_wc)
 
     // 현재 시간, 부모 프레임과 자식 프레임 설정하여 변환 publish
     br_.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "camera"));
+}
+
+void VWO_node::publishPointcloud(const ros::Time& stamp)
+{
+    std::vector<std::shared_ptr<data::landmark>> all_landmarks;
+
+    data::map_database* map_db =  system_->getMapDatabase();
+    auto roots = map_db->get_spanning_roots();
+    if (roots.empty()) {
+        std::cout << "publishPointcloud() failed" << std::endl;
+    }
+    else
+    {
+        auto keyfrms = roots.back()->graph_node_->get_keyframes_from_root();
+        std::unordered_set<unsigned int> already_found_landmark_ids;
+        all_landmarks.clear();
+        for (const auto& keyfrm : keyfrms) {
+            for (const auto& lm : keyfrm->get_landmarks()) {
+                if (!lm) {
+                    continue;
+                }
+                if (lm->will_be_erased()) {
+                    continue;
+                }
+                if (already_found_landmark_ids.count(lm->id_)) {
+                    continue;
+                }
+
+                already_found_landmark_ids.insert(lm->id_);
+                all_landmarks.push_back(lm);
+            }
+        }
+    }
+    
+    pcl::PointCloud<pcl::PointXYZ> points;
+    for (const auto lm : all_landmarks) {
+        if (!lm || lm->will_be_erased()) {
+            continue;
+        }
+        const Eigen::Vector3d pos_w = lm->get_pos_in_world();
+        points.push_back(pcl::PointXYZ(pos_w.x(), pos_w.y(), pos_w.z()));
+    }
+    sensor_msgs::PointCloud2 pcout;
+    pcl::toROSMsg(points, pcout);
+    pcout.header.frame_id = odom_name_;
+    pcout.header.stamp = stamp;
+    pc_pub_.publish(pcout);
 }
 
 void VWO_node::imageCallback(const sensor_msgs::ImageConstPtr& image_msg)
@@ -176,7 +225,7 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
     Eigen::Affine3d base_link_to_camera_affine;
     try
     {
-        auto base_link_to_camera_ = tf_->lookupTransform(base_link_frame_, camera_link_frame, image_msg->header.stamp, ros::Duration(10.0));
+        auto base_link_to_camera_ = tf_->lookupTransform(base_link_frame_, camera_link_frame_, image_msg->header.stamp, ros::Duration(10.0));
         base_link_to_camera_affine = tf2::transformToEigen(base_link_to_camera_.transform);
     }
     catch (tf2::TransformException& ex)
@@ -190,7 +239,7 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
         Mat44_t curr_cam_tf = curr_odom_ * base_link_to_camera_affine.matrix();
         std::shared_ptr<Mat44_t> pose_wc = system_->trackFrameWithOdom(cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8)->image, timestamp, curr_cam_tf);
 
-        if(*pose_wc != Mat44_t::Identity())
+        if(pose_wc)
         {
             pose_wc_ = pose_wc;
         }
@@ -198,5 +247,6 @@ void VWO_node::syncCallback2(const sensor_msgs::ImageConstPtr& image_msg, const 
     if(pose_wc_ && *pose_wc_ != Mat44_t::Identity())
     {
         publishPose(*pose_wc_);
+        publishPointcloud(image_msg->header.stamp);
     }
 }

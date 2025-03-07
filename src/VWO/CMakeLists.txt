@@ -29,6 +29,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2
   tf2_msgs
+  pcl_ros
 )
 
 catkin_package(

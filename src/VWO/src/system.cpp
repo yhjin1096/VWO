@@ -41,6 +41,20 @@ System::~System()
 
     delete feature_extractor_;
     feature_extractor_ = nullptr;
+
+    delete map_db_;
+    map_db_ = nullptr;
+
+    delete bow_vocab_;
+    bow_vocab_ = nullptr;
+
+    delete tracker_;
+    tracker_ = nullptr;
+}
+
+data::map_database* System::getMapDatabase()
+{
+    return map_db_;
 }
 
 std::shared_ptr<Mat44_t> System::trackFrame(const cv::Mat &image, const double timestamp)

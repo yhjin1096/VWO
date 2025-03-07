@@ -104,7 +104,7 @@ inline shot_vertex* shot_vertex_container::create_vertex(const unsigned int id, 
     (*offset_)++;
     auto vtx = new shot_vertex();
     vtx->setId(vtx_id);
-    vtx->setEstimate(util::converter::to_g2o_SE3(pose_cw));
+    vtx->setEstimate(util::converter::to_g2o_SE3(pose_cw)); // vertex 위치 초기화
     vtx->setFixed(is_constant);
     // databaseに登録
     id_container_[vtx_id] = id;

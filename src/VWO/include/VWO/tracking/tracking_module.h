@@ -50,6 +50,8 @@ class TrackingModule
 
         std::shared_ptr<Mat44_t> trackFrame(data::Frame curr_frm, data::Frame prev_frm);
 
+        double init_retry_threshold_time_ = 5.0;
+
     protected:
         bool initialize();
         
@@ -79,7 +81,7 @@ class TrackingModule
         
         module::Initializer initializer_;
 
-
+        double init_frm_stamp_ = 0.0;
 
 
 

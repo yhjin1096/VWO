@@ -36,6 +36,8 @@ class System
         std::shared_ptr<Mat44_t> trackTwoFrame(const cv::Mat& prev_image, const cv::Mat& curr_image,
                             const double prev_timestamp, const double curr_timestamp);
 
+        data::map_database* getMapDatabase();
+
     private:
         std::shared_ptr<Config> config_;
 

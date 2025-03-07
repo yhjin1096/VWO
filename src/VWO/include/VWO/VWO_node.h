@@ -3,8 +3,12 @@
 
 #include <ros/ros.h>
 
-#include <sensor_msgs/Image.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_ros/point_cloud.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 
 #include <tf/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
@@ -24,6 +28,7 @@
 
 #include "VWO/system.h"
 #include "VWO/config.h"
+#include "VWO/data/landmark.h"
 
 class VWO_node
 {
@@ -38,7 +43,7 @@ class VWO_node
         std::string image_topic_name_;
         std::string odom_name_;
         std::string base_link_frame_;
-        std::string camera_link_frame;
+        std::string camera_link_frame_;
 
     private:
         ros::NodeHandle nh_;
@@ -67,6 +72,9 @@ class VWO_node
         
         void publishPose(Mat44_t pose);
         std::shared_ptr<Mat44_t> pose_wc_;
+        void publishPointcloud(const ros::Time& stamp);
+        ros::Publisher pc_pub_;
+        
 };
 
 #endif

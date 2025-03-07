@@ -71,39 +71,39 @@ std::shared_ptr<Mat44_t> TrackingModule::feed_frame(data::Frame curr_frm)
     //         keyfrm_inserter_.insert_new_keyframe(map_db_, curr_frm_);
     //     }
     // }
-    if(succeeded)
-    {
-        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(curr_frm_.get_pose_wc());
-        return tmp;
-    }
-    else
-    {
-        std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(Mat44_t::Identity());
-        return tmp;
-    }
+    // if(succeeded)
+    // {
+    //     std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(curr_frm_.get_pose_wc());
+    //     return tmp;
+    // }
+    // else
+    // {
+    //     std::shared_ptr<Mat44_t> tmp = std::make_shared<Mat44_t>(Mat44_t::Identity());
+    //     return tmp;
+    // }
 
-    // state transition
-    if (succeeded) {
-        tracking_state_ = tracker_state_t::Tracking;
-    }
-    else if (tracking_state_ == tracker_state_t::Tracking) {
-        tracking_state_ = tracker_state_t::Lost;
+    // // state transition
+    // if (succeeded) {
+    //     tracking_state_ = tracker_state_t::Tracking;
+    // }
+    // else if (tracking_state_ == tracker_state_t::Tracking) {
+    //     tracking_state_ = tracker_state_t::Lost;
 
-        // spdlog::info("tracking lost: frame {}", curr_frm_.id_);
-        // // if tracking is failed within init_retry_threshold_time_ sec after initialization, reset the system
-        // if (!mapper_->is_paused() && curr_frm_.timestamp_ - initializer_.get_initial_frame_timestamp() < init_retry_threshold_time_) {
-        //     spdlog::info("tracking lost within {} sec after initialization", init_retry_threshold_time_);
-        //     reset();
-        //     return nullptr;
-        // }
-    }
+    //     spdlog::info("tracking lost: frame {}", curr_frm_.id_);
+    //     // if tracking is failed within init_retry_threshold_time_ sec after initialization, reset the system
+    //     if (!mapper_->is_paused() && curr_frm_.timestamp_ - initializer_.get_initial_frame_timestamp() < init_retry_threshold_time_) {
+    //         spdlog::info("tracking lost within {} sec after initialization", init_retry_threshold_time_);
+    //         reset();
+    //         return nullptr;
+    //     }
+    // }
 
     std::shared_ptr<Mat44_t> cam_pose_wc = nullptr;
     // store the relative pose from the reference keyframe to the current frame
     // to update the camera pose at the beginning of the next tracking process
     if (curr_frm_.pose_is_valid()) {
-        // last_cam_pose_from_ref_keyfrm_ = curr_frm_.get_pose_cw() * curr_frm_.ref_keyfrm_->get_pose_wc();
-        // cam_pose_wc = std::allocate_shared<Mat44_t>(Eigen::aligned_allocator<Mat44_t>(), curr_frm_.get_pose_wc());
+        last_cam_pose_from_ref_keyfrm_ = curr_frm_.get_pose_cw() * curr_frm_.ref_keyfrm_->get_pose_wc();
+        cam_pose_wc = std::allocate_shared<Mat44_t>(Eigen::aligned_allocator<Mat44_t>(), curr_frm_.get_pose_wc());
     }
 
     // update last frame
@@ -114,7 +114,7 @@ std::shared_ptr<Mat44_t> TrackingModule::feed_frame(data::Frame curr_frm)
     }
     // SPDLOG_TRACE("tracking_module: finish tracking");
 
-    // return cam_pose_wc;
+    return cam_pose_wc;
 }
 
 bool TrackingModule::initialize() {
