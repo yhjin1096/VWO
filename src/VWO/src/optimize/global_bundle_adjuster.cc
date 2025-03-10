@@ -62,43 +62,6 @@ void optimize_impl(g2o::SparseOptimizer& optimizer,
         optimizer.addVertex(keyfrm_vtx);
     }
 
-
-    // // edge 추가(keyframe-keyframe using wheel odometry)
-    // using wheel_odom_edge_wrapper = internal::se3::wheel_odom_edge_wrapper<data::keyframe>;
-    // for(int i = 1; i < keyfrms.size(); i++)
-    // {
-        
-    //     if (!keyfrms[i-1] || !keyfrms[i]) {
-    //         continue;
-    //     }
-    //     if (keyfrms[i-1]->will_be_erased() || keyfrms[i]->will_be_erased()) {
-    //         continue;
-    //     }
-
-    //     if (!keyfrm_vtx_container.contain(keyfrms[i-1]) || !keyfrm_vtx_container.contain(keyfrms[i])) {
-    //         continue;
-    //     }
-    //     Mat44_t relative_odom = keyfrms[i]->curr_cam_tf_.inverse() * keyfrms[i-1]->curr_cam_tf_;
-    //     Eigen::Quaterniond q(relative_odom.block<3,3>(0,0));
-    //     g2o::SE3Quat relative_pose;
-    //     relative_pose.setRotation(q);
-    //     relative_pose.setTranslation(relative_odom.block<3,1>(0,3));
-        
-    //     const auto keyfrm_vtx1 = keyfrm_vtx_container.get_vertex(keyfrms[i-1]);
-    //     const auto keyfrm_vtx2 = keyfrm_vtx_container.get_vertex(keyfrms[i]);
-
-    //     // std::cout << "--------------------" << std::endl;
-    //     // std::cout << relative_odom << std::endl;
-    //     // std::cout << keyfrm_vtx1->estimate() << std::endl;
-    //     // std::cout << keyfrm_vtx2->estimate() << std::endl;
-    //     // std::cout << "--------------------" << std::endl;
-
-    //     auto wheel_odom_edge_wrap = wheel_odom_edge_wrapper(keyfrms[i-1], keyfrm_vtx1,
-    //                                                         keyfrms[i], keyfrm_vtx2,
-    //                                                         relative_pose);
-    //     optimizer.addEdge(wheel_odom_edge_wrap.edge_);
-    // }
-
     // 4. Connect the vertices of the keyframe and the landmark by using reprojection edge
 
     // Container of the reprojection edges
@@ -162,43 +125,6 @@ void optimize_impl(g2o::SparseOptimizer& optimizer,
             is_optimized_lm.at(i) = false;
         }
     }
-
-    // // Connect marker vertices
-    // for (unsigned int marker_idx = 0; marker_idx < markers.size(); ++marker_idx) {
-    //     auto mkr = markers.at(marker_idx);
-    //     if (!mkr) {
-    //         continue;
-    //     }
-
-    //     // Convert the corners to the g2o vertex, then set it to the optimizer
-    //     auto corner_vertices = marker_vtx_container.create_vertices(mkr, true);
-    //     for (unsigned int corner_idx = 0; corner_idx < corner_vertices.size(); ++corner_idx) {
-    //         const auto corner_vtx = corner_vertices[corner_idx];
-    //         optimizer.addVertex(corner_vtx);
-
-    //         for (const auto& keyfrm : mkr->observations_) {
-    //             if (!keyfrm) {
-    //                 continue;
-    //             }
-    //             if (keyfrm->will_be_erased()) {
-    //                 continue;
-    //             }
-    //             if (!keyfrm_vtx_container.contain(keyfrm)) {
-    //                 continue;
-    //             }
-    //             const auto keyfrm_vtx = keyfrm_vtx_container.get_vertex(keyfrm);
-    //             const auto& mkr_2d = keyfrm->markers_2d_.at(mkr->id_);
-    //             const auto& undist_pt = mkr_2d.undist_corners_.at(corner_idx);
-    //             const float x_right = -1.0;
-    //             const float inv_sigma_sq = 1.0;
-    //             auto reproj_edge_wrap = reproj_edge_wrapper(keyfrm, keyfrm_vtx, nullptr, corner_vtx,
-    //                                                         0, undist_pt.x, undist_pt.y, x_right,
-    //                                                         inv_sigma_sq, 0.0, false);
-    //             reproj_edge_wraps.push_back(reproj_edge_wrap);
-    //             optimizer.addEdge(reproj_edge_wrap.edge_);
-    //         }
-    //     }
-    // }
 
     // 5. Perform optimization
 
@@ -271,6 +197,11 @@ void global_bundle_adjuster::optimize_for_initialization(const std::vector<std::
     }
 }
 
+void global_bundle_adjuster::optimize_landmarks_only(const std::vector<std::shared_ptr<data::keyframe>>& keyfrms,
+                                                    const std::vector<std::shared_ptr<data::landmark>>& lms) const
+{
+    
+}
 bool global_bundle_adjuster::optimize(const std::vector<std::shared_ptr<data::keyframe>>& keyfrms,
                                       std::unordered_set<unsigned int>& optimized_keyfrm_ids,
                                       std::unordered_set<unsigned int>& optimized_landmark_ids,

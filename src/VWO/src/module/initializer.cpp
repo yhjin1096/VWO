@@ -265,16 +265,19 @@ bool Initializer::create_map_for_monocular(data::bow_vocabulary* bow_vocab, data
         map_db_->add_landmark(lm);
         lms.push_back(lm);
     }
+    std::cout << "최적화 전 camera pose" << std::endl;
+    std::cout << curr_keyfrm->get_pose_wc() << std::endl;
 
     // // global bundle adjustment
     const auto global_bundle_adjuster = optimize::global_bundle_adjuster(num_ba_iters_, true);
     std::vector<std::shared_ptr<data::keyframe>> keyfrms{init_keyfrm, curr_keyfrm};
     // global_bundle_adjuster.optimize_for_initialization(keyfrms, lms, markers);
-    global_bundle_adjuster.optimize_for_initialization(keyfrms, lms);
+    // global_bundle_adjuster.optimize_for_initialization(keyfrms, lms);
+    global_bundle_adjuster.optimize_landmarks_only(keyfrms, lms);
 
     curr_frm.set_pose_cw(curr_keyfrm->get_pose_cw());
-    // std::cout << "최적화 후 camera pose" << std::endl;
-    // std::cout << curr_frm.get_pose_cw() << std::endl;
+    std::cout << "최적화 후 camera pose" << std::endl;
+    std::cout << curr_frm.get_pose_wc() << std::endl;
 
     state_ = initializer_state_t::Succeeded;
     return true;

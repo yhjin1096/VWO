@@ -163,28 +163,14 @@ bool perspective::initialize_with_odom(const data::Frame& cur_frm, const std::ve
         const Mat33_t H_ref_to_cur = homography_solver.get_best_H_21();
         const auto is_inlier_match = homography_solver.get_inlier_matches();
         
-        if(relative_cam_tf.rows() == 0 || relative_cam_tf.cols() == 0)
-        {
-            return reconstruct_with_H(H_ref_to_cur, is_inlier_match);
-        }
-        else
-        {
-            return reconstruct_with_H_and_odom(H_ref_to_cur, is_inlier_match, relative_cam_tf);
-        }
+        return reconstruct_with_H_and_odom(H_ref_to_cur, is_inlier_match, relative_cam_tf);
     }
     else if (fundamental_solver.solution_is_valid()) {
         //spdlog::debug("reconstruct_with_F");
         const Mat33_t F_ref_to_cur = fundamental_solver.get_best_F_21();
         const auto is_inlier_match = fundamental_solver.get_inlier_matches();
         
-        if(relative_cam_tf.rows() == 0 || relative_cam_tf.cols() == 0)
-        {
-            return reconstruct_with_F(F_ref_to_cur, is_inlier_match);
-        }
-        else
-        {
-            return reconstruct_with_F_and_odom(F_ref_to_cur, is_inlier_match, relative_cam_tf);
-        }
+        return reconstruct_with_F_and_odom(F_ref_to_cur, is_inlier_match, relative_cam_tf);
     }
     else {
         return false;
@@ -198,29 +184,36 @@ bool perspective::reconstruct_with_H_and_odom(const Mat33_t& H_ref_to_cur, const
     eigen_alloc_vector<Mat33_t> init_rots;
     eigen_alloc_vector<Vec3_t> init_transes;
     eigen_alloc_vector<Vec3_t> init_normals;
-    if (!solve::homography_solver::decompose(H_ref_to_cur, ref_cam_matrix_, cur_cam_matrix_, init_rots, init_transes, init_normals)) {
-        return false;
-    }
+    // if (!solve::homography_solver::decompose(H_ref_to_cur, ref_cam_matrix_, cur_cam_matrix_, init_rots, init_transes, init_normals)) {
+    //     return false;
+    // }
 
-    assert(init_rots.size() == 8);
-    assert(init_transes.size() == 8);
-
+    // assert(init_rots.size() == 8);
+    // assert(init_transes.size() == 8);
+    init_rots.push_back(relative_cam_tf.block<3, 3>(0, 0));
+    init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
     // hypothesis에 scale 적용
 
-    int size = init_transes.size();
+    // int size = init_transes.size();
     double relative_distance = relative_cam_tf.block<3, 1>(0, 3).norm();
-    double scale;
+    // double scale;
+    // if(relative_distance >= 0.01) // 로봇이 움직인 경우만
+    // {
+    //     for(int i = 0; i < size; i++)
+    //     {
+    //         scale =  relative_distance / init_transes[i].norm();
+    //         init_transes[i] *= scale;
+    //     }
+    // }
     if(relative_distance >= 0.01) // 로봇이 움직인 경우만
     {
-        for(int i = 0; i < size; i++)
-        {
-            scale =  relative_distance / init_transes[i].norm();
-            init_transes[i] *= scale;
+        const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);
+        if (!pose_is_found) {
+            return false;
         }
     }
-
-    const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);
-    if (!pose_is_found) {
+    else
+    {
         return false;
     }
 
@@ -234,33 +227,40 @@ bool perspective::reconstruct_with_F_and_odom(const Mat33_t& F_ref_to_cur, const
     // decompose the F matrix
     eigen_alloc_vector<Mat33_t> init_rots;
     eigen_alloc_vector<Vec3_t> init_transes;
-    if (!solve::fundamental_solver::decompose(F_ref_to_cur, ref_cam_matrix_, cur_cam_matrix_, init_rots, init_transes)) {
-        return false;
-    }
+    // if (!solve::fundamental_solver::decompose(F_ref_to_cur, ref_cam_matrix_, cur_cam_matrix_, init_rots, init_transes)) {
+    //     return false;
+    // }
 
-    assert(init_rots.size() == 4);
-    assert(init_transes.size() == 4);
+    // assert(init_rots.size() == 4);
+    // assert(init_transes.size() == 4);
 
     // wheel odom으로 얻은 카메라의 relative pose 추가 및
     // hypothesis에 scale 적용
-    // init_rots.push_back(relative_cam_tf.block<3, 3>(0, 0));
-    // init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
+    init_rots.push_back(relative_cam_tf.block<3, 3>(0, 0));
+    init_transes.push_back(relative_cam_tf.block<3, 1>(0, 3));
 
-    int size = init_transes.size();
+    // int size = init_transes.size();
     double relative_distance = relative_cam_tf.block<3, 1>(0, 3).norm();
-    double scale;
+    // double scale;
     
+    // if(relative_distance >= 0.01) // 로봇이 움직인 경우만
+    // {
+    //     for(int i = 0; i < size; i++)
+    //     {
+    //         scale = relative_distance / init_transes[i].norm();
+    //         init_transes[i] *= scale;
+    //     }
+    // }
+
     if(relative_distance >= 0.01) // 로봇이 움직인 경우만
     {
-        for(int i = 0; i < size; i++)
-        {
-            scale = relative_distance / init_transes[i].norm();
-            init_transes[i] *= scale;
+        const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);
+        if (!pose_is_found) {
+            return false;
         }
     }
-
-    const auto pose_is_found = find_most_plausible_pose(init_rots, init_transes, is_inlier_match, true);
-    if (!pose_is_found) {
+    else
+    {
         return false;
     }
 

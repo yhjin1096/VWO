@@ -49,7 +49,6 @@ inline void WheelOdomBinaryEdge::computeError()
     const shot_vertex* v2 = static_cast<const shot_vertex*>(_vertices[1]);
 
     g2o::SE3Quat C(_measurement);
-    // g2o::SE3Quat error_ = v2->estimate().inverse() * C * v1->estimate();
     g2o::SE3Quat error_ = v2->estimate().inverse() * C * v1->estimate();
     _error = error_.log();
 }

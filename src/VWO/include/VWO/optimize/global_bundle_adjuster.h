@@ -25,7 +25,8 @@ public:
                                      const std::vector<std::shared_ptr<data::landmark>>& lms,
                                     //  const std::vector<std::shared_ptr<data::marker>>& markers,
                                      bool* const force_stop_flag = nullptr) const;
-
+    void optimize_landmarks_only(const std::vector<std::shared_ptr<data::keyframe>>& keyfrms,
+                                const std::vector<std::shared_ptr<data::landmark>>& lms) const;
     /**
      * Perform optimization
      * @param keyfrms
